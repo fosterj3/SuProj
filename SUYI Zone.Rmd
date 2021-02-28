@@ -46,7 +46,7 @@ if(!require(readxl)){
 
 ```{r set_knitr_chunk_options, echo=FALSE, message=FALSE}
 #set global output chunk options
-knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, collapse=FALSE, highlight= FALSE, results='asis', fig.height = 3, fig.width = 5,  fig.align = "center")
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, collapse=FALSE, highlight= FALSE, results='asis', fig.height = 5, fig.width = 9,  fig.align = "center")
 ```
 
 ```{r, message = F, warning=FALSE}
@@ -144,7 +144,10 @@ df_long <- pivot_longer(df, cols = fall_math:spring_reading) %>%
   rename(rit_score = value) 
 ```
 
+---
+
 # Youth Initiative Zone Students
+
 ```{r, eval= FALSE}
 table <- data %>%
   group_by(School = school, Group = suyi) %>%
@@ -201,7 +204,8 @@ data %>%
 ```{r}
 # Student's Primary Language
 table <- data %>%
-   count(primary_language) %>% 
+   count("Primary Language" = primary_language ) %>% 
+   filter(n > 3) %>% 
   arrange(desc(n))
 
 kable(table, caption = "Student's Primary Language") 
@@ -243,7 +247,7 @@ table <- df %>%
     "Std. Err." = sd(fall_math, na.rm = TRUE)/sqrt(sum(!is.na(fall_math))),
     "t-test" = tstar
   )
-kable(table, caption = "Fall Math Scores?")
+kable(table, caption = "Fall Math Scores")
 
 df %>% 
   group_by(suyi) %>% 
@@ -252,27 +256,28 @@ df %>%
 ```
 
 ```{r, warning=F}
+
 #Average RIT Score by Semester
 df_long %>% 
-  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Semestere" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~semester) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) 
+  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Semestere" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~semester) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) + coord_flip()
 ```
 
 ```{r, warning=F}
 #Average RIT Score by Grade Level
 df_long %>% 
-  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Grade Level" ,subtitle = "elementary is grades 1-5, middle is 6-8, and high school is 9-12", x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~grade_level) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) 
+  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Grade Level" ,subtitle = "elementary is grades 1-5, middle is 6-8, and high school is 9-12", x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~grade_level) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) + coord_flip() 
 ```
 
 ```{r, warning=F}
 #Average RIT Score by Race
 df_long %>% 
-  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Race" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~race) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) 
+  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Race" ,x = NULL, y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~race) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300))
 ```
 
 ```{r, warning=F}
 #Average RIT Score by Sex
 df_long %>% 
-  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Sex" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~sex) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) 
+  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Sex" ,x = NULL, y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~sex) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) 
 ```
 
  
