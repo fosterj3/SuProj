@@ -1,0 +1,255 @@
+---
+title: "Seattle University: Center for Community Engagement"
+author: 'Prepared by: James Lamar Foster'
+subtitle: Senior Data and Evaluation Analyst Interview
+output:
+  word_document:
+    reference_docx: SeattleU_Template.docx
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#clear memory
+rm(list = ls())
+#penalize excessive significant figures
+options(digits = 3)
+#preventing scientific notation
+options(scipen = 10)
+
+#packages used in this analysis, will install packages if not installed
+if(!require(knitr)){
+    install.packages("knitr", dependencies = TRUE)
+    library(knitr)
+}
+if(!require(tidyverse)){
+    install.packages("tidyverse", dependencies = TRUE)
+    library(tidyverse)
+}
+if(!require(haven)){
+    install.packages("haven", dependencies = TRUE)
+    library(haven)
+}
+if(!require(janitor)){
+    install.packages("janitor", dependencies = TRUE)
+    library(janitor)
+}
+
+if(!require(ggthemes)){
+    install.packages("ggthemes", dependencies = TRUE)
+    library(ggthemes)
+}
+
+if(!require(readxl)){
+    install.packages("readxl", dependencies = TRUE)
+    library(readxl)
+}
+```
+
+```{r set_knitr_chunk_options, echo=FALSE, message=FALSE}
+#set global output chunk options
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, collapse=FALSE, highlight= FALSE, results='asis', fig.height = 3, fig.width = 5,  fig.align = "center")
+```
+
+```{r, message = F, warning=FALSE}
+# Import Data
+data <- read_xlsx("interview_data.xlsx")
+
+#setting theme and centering the titles for ggplots
+theme_set(theme_classic())
+```
+
+```{r}
+#R function to add significance stars to a p-value
+star <- function(pval) {
+  if (pval <= 0.001) {
+    return("p < .001")
+  }
+  if (pval <= 0.01) {
+    return(" p < .01")
+  }		
+  if (pval <= 0.05) {
+    return(" p < .05")
+  }
+  #if (pval <= 0.1) {
+  #  return("p < .1")
+  #}
+  else {return("n.s.")
+  }
+}
+```
+
+```{r}
+# A little bit of cleaning
+
+## Remove empty columns 
+data <- clean_names(data) %>% 
+  remove_empty(which = c("rows", "cols"), quiet = TRUE) 
+
+##Rename columns 
+data <- data %>% 
+rename(
+ latinx =  ethnicity_desc_p,
+ race = race_desc_p,
+ homeless = is_homeless, 
+ school = school_name2010,
+ gpa = gpa2014, 
+ bilingual = bilg2014,
+ fall_math = x2013fall_math_rit,
+ winter_math = x2014wtr_math_rit,
+ spring_math = x2014spr_math_rit,
+ fall_reading = x2013fall_read_rit,
+ winter_reading = x2014wtr_read_rit,
+ spring_reading = x2014spr_read_rit,
+ suyi = suyi_focus_students
+ )
+
+#Turn some character values to numbers 
+data$latinx <- if_else(data$latinx == "Hispanic/Latino", 1, 0)
+data$sex <- recode(data$sex, "M" = "Male", "F" = "Female")
+data$homeless <- recode(data$homeless, "N" = 0, "Y" = 1)
+data$sped <- recode(data$sped, "N" = 0, "Y" = 1)
+data$bilingual <- recode(data$bilingual, "N" = 0, "Y" = 1)
+data$suyi <- recode(data$suyi, "1" = "SUYI", "0" = "Non-SUYI")
+
+data <- data %>% hablar::retype() 
+
+# Treat some variables as factors 
+data$suyi <- as.factor(data$suyi)
+data$sped <- as.factor(data$sped)
+data$race <- as.factor(data$race)
+data$school <- as.factor(data$school)
+
+# Turn NAs in home language variable to English 
+#Turn NAs to zero for Race and Ethnicity Columns
+data <- data %>%
+  mutate_at(vars(home_language, primary_language), ~replace_na(., "English"))
+
+
+#Make dataset of only variables used for analysis 
+df <- data %>% select(-c(suyi_zone, status2014, withdraw_date, proj_grad_year))
+
+#Create "Grade Level" column 
+df <- df %>% 
+mutate(grade_level =
+         case_when(grade %in% c("1", "2", "3", "4", "5", "K") ~ "elementary",
+                   grade %in% c("6", "7", "8")  ~ "middle",
+                   grade %in% c("9", "10", "11", "12") ~ "high school"))
+
+#Make grade_level a factor
+df$grade_level <- factor(df$grade_level, 
+                         levels = c("elementary", "middle", "high school"), 
+                         labels = c("elementary", "middle", "high school"))
+
+df_long <- pivot_longer(df, cols = fall_math:spring_reading) %>% 
+  separate(name, c("semester", "subject"), sep = "_") %>% 
+  rename(rit_score = value) 
+```
+
+# Youth Initiative Zone Students
+```{r, eval= FALSE}
+table <- data %>%
+  group_by(School = school, Group = suyi) %>%
+  summarise("Total" = n()) %>%
+            adorn_totals("row")
+kable(table, caption = "Respondents by School") 
+
+
+data %>%
+   group_by(School = school, SUYI = suyi) %>%
+  summarise("Total" = n()) %>% 
+ggplot(aes(School, Total)) +
+  geom_col(aes(fill = SUYI), position = "dodge") +
+  scale_y_continuous(breaks = c(0,25,50,75,100,125,150)) +
+  labs(x = "School", 
+       y = "Number of Respondents") +
+  scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip()
+```
+
+# Youth Initiative Zone Student Demographics 
+
+```{r}
+# Number of Bilingual Student 
+table <- data %>% 
+  group_by("Group" = suyi) %>%
+  summarise(
+    "n" = sum(as.numeric(bilingual)),
+    "Percent Bilingual" = round((n/n())*100,2),
+  )
+kable(table, caption = "Bilingual Students")
+
+data %>% 
+  group_by(suyi) %>% 
+  summarise(y = round((sum(bilingual)/n())*100,2)) %>% 
+  ggplot(aes(suyi,y, fill = suyi, fill = suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(x = "", y = "Percent", color= "Group") + scale_y_continuous(limits=c(0, 100)) + geom_col() + coord_flip()
+```
+
+```{r}
+# Number of Students Experiencing Homelessness
+table <- data %>% 
+  group_by("Group" = suyi) %>%
+  summarise(
+    "n" = sum(as.numeric(homeless)),
+    "Percent Homeless" = round((n/n())*100,2),
+  )
+kable(table, caption = "Students Experiencing Homelessness")
+
+data %>% 
+  group_by(suyi) %>% 
+  summarise(y = round((sum(bilingual)/n())*100,2)) %>% 
+  ggplot(aes(suyi,y, fill = suyi, fill = suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(x = "", y = "Percent", color= "Group") + scale_y_continuous(limits=c(0, 100)) + geom_col() + coord_flip()
+```
+
+
+```{r}
+# Student's Primary Language
+```
+
+
+
+
+
+# RIT Scores 
+```{r}
+tresults <- t.test(df$fall_math ~ df$suyi)
+tstar <- star(tresults$p.value)
+
+table <- df %>% 
+  group_by("Group" = suyi) %>%
+  summarise(
+    "Mean" = round(mean(fall_math, na.rm = TRUE),2),
+    "Std. Err." = sd(fall_math, na.rm = TRUE)/sqrt(sum(!is.na(fall_math))),
+    "t-test" = tstar
+  )
+kable(table, caption = "Fall Math Scores?")
+
+df %>% 
+  group_by(suyi) %>% 
+  summarise("mean" = mean(fall_math, na.rm = T)) %>% 
+  ggplot(aes(suyi, mean, fill = suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(x = NULL, y = "Average", fill= "Group") + geom_col() + coord_flip() #+ geom_text(aes(label = round(mean,2),y = mean + 0.05), position = position_dodge(0.9), vjust = 0)
+```
+
+```{r, warning=F}
+#Average RIT Score by Semester
+df_long %>% 
+  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Semestere" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~semester) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) 
+```
+
+```{r, warning=F}
+#Average RIT Score by Grade Level
+df_long %>% 
+  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Grade Level" ,subtitle = "elementary is grades 1-5, middle is 6-8, and high school is 9-12", x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~grade_level) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) 
+```
+
+```{r, warning=F}
+#Average RIT Score by Race
+df_long %>% 
+  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Race" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~race) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) 
+```
+
+```{r, warning=F}
+#Average RIT Score by Sex
+df_long %>% 
+  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Sex" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~sex) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) 
+```
+
+# Students Attendance 
+A student is considered "chronically absent" when they miss 15 or more days of instruction in one academic school year. 
