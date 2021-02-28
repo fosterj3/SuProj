@@ -214,6 +214,19 @@ ggplot(data, aes(x= reorder(primary_language, primary_language,function(x)length
 A student is considered "chronically absent" when they miss 15 or more days of instruction in one academic school year.
 ```{r}
 
+table <- data %>% 
+  group_by("Group" = suyi) %>%
+  summarise(
+    "Min" = min(days_absent),
+    "Median" = median(days_absent),
+    "Mean" = mean(days_absent),
+    "Max" = max(days_absent),
+  )
+kable(table, caption = "Days Absent") 
+
+
+data %>% 
+  ggplot(aes(reorder(school, days_absent, FUN = median), days_absent)) + geom_boxplot() + coord_flip() + labs(x = "School", y = "Days Absent")
 ```
 
 ---
