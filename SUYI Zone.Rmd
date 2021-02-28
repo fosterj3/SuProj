@@ -149,7 +149,7 @@ df_long <- pivot_longer(df, cols = fall_math:spring_reading) %>%
 table <- data %>%
   group_by(School = school, Group = suyi) %>%
   summarise("Total" = n()) %>%
-            adorn_totals("row")
+            arrange(desc(Total, School))
 kable(table, caption = "Respondents by School") 
 
 
@@ -157,7 +157,7 @@ data %>%
    group_by(School = school, SUYI = suyi) %>%
   summarise("Total" = n()) %>% 
 ggplot(aes(School, Total)) +
-  geom_col(aes(fill = SUYI), position = "dodge") +
+  geom_col(aes(fill = SUYI, x= reorder(School, Total)), position = "dodge") +
   scale_y_continuous(breaks = c(0,25,50,75,100,125,150)) +
   labs(x = "School", 
        y = "Number of Respondents") +
@@ -194,18 +194,29 @@ kable(table, caption = "Students Experiencing Homelessness")
 
 data %>% 
   group_by(suyi) %>% 
-  summarise(y = round((sum(bilingual)/n())*100,2)) %>% 
+  summarise(y = round((sum(homeless)/n())*100,2)) %>% 
   ggplot(aes(suyi,y, fill = suyi, fill = suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(x = "", y = "Percent", color= "Group") + scale_y_continuous(limits=c(0, 100)) + geom_col() + coord_flip()
 ```
 
-
 ```{r}
 # Student's Primary Language
+table <- data %>%
+   count(primary_language) %>% 
+  arrange(desc(n))
+
+kable(table, caption = "Student's Primary Language") 
+
+ggplot(data, aes(x= reorder(primary_language, primary_language,function(x)length(x)), fill= suyi)) + geom_bar(position = "dodge") + scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip() + labs(x= "Primary Language")
 ```
 
+---
+# Students Attendance 
+A student is considered "chronically absent" when they miss 15 or more days of instruction in one academic school year.
+```{r}
 
+```
 
-
+---
 
 # RIT Scores 
 ```{r}
@@ -251,5 +262,6 @@ df_long %>%
   ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Sex" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~sex) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) 
 ```
 
-# Students Attendance 
-A student is considered "chronically absent" when they miss 15 or more days of instruction in one academic school year. 
+ 
+
+
