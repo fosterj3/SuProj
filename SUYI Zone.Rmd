@@ -1,8 +1,11 @@
 ---
-title: "Seattle University: Center for Community Engagement"
+title: 'Seattle University: Center for Community Engagement'
 author: 'Prepared by: James Lamar Foster'
 subtitle: Senior Data and Evaluation Analyst Interview
 output:
+  html_document:
+    df_print: paged
+  pdf_document: default
   word_document:
     reference_docx: SeattleU_Template.docx
 ---
@@ -46,7 +49,7 @@ if(!require(readxl)){
 
 ```{r set_knitr_chunk_options, echo=FALSE, message=FALSE}
 #set global output chunk options
-knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, collapse=FALSE, highlight= FALSE, results='asis', fig.height = 4, fig.width = 7,  fig.align = "center")
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, collapse=FALSE, highlight= FALSE, results='asis', fig.height = 4, fig.width = 7,  fig.align = "left")
 ```
 
 ```{r, message = F, warning=FALSE}
@@ -108,7 +111,7 @@ data$sex <- recode(data$sex, "M" = "Male", "F" = "Female")
 data$homeless <- recode(data$homeless, "N" = 0, "Y" = 1)
 data$sped <- recode(data$sped, "N" = 0, "Y" = 1)
 data$bilingual <- recode(data$bilingual, "N" = 0, "Y" = 1)
-data$suyi <- recode(data$suyi, "1" = "SUYI", "0" = "Non-SUYI")
+data$suyi <- recode(data$suyi, "1" = "SUYI-Focus", "0" = "SUYI")
 
 data <- data %>% hablar::retype() 
 
@@ -142,18 +145,35 @@ df$grade_level <- factor(df$grade_level,
 df_long <- pivot_longer(df, cols = fall_math:spring_reading) %>% 
   separate(name, c("semester", "subject"), sep = "_") %>% 
   rename(rit_score = value) 
+
+
+#Make elementary, middle, and hs data frames 
+elem <- df %>% filter(grade_level == "elementary")
+middle <- df %>% filter(grade_level == "middle")
+hs <- df %>% filter(grade_level == "high school")
+
+#Make semester a factor
+df_long$semester <- factor(df_long$semester, 
+                         levels = c("fall", "winter", "spring"), 
+                         labels = c("fall", "winter", "spring"))
+
 ```
 
 ---
 
-# Youth Initiative Zone Students
+# Youth Initiative Zone Schools and Students
 
 ```{r}
 table <- data %>%
   group_by(School = school, Group = suyi) %>%
   summarise("Total" = n()) %>%
-            arrange(desc(Total, School))
-kable(table, caption = "Respondents by School") 
+  adorn_totals("row") %>% 
+  adorn_percentages(denominator = "col") %>% 
+  adorn_pct_formatting() %>%
+  adorn_ns()
+
+
+kable(table, caption = "Respondents by School", col.names = c("School Name", "Group", "Percent (Total)")) 
 
 
 data %>%
@@ -170,17 +190,52 @@ ggplot(aes(School, Total)) +
 # Youth Initiative Zone Student Demographics 
 
 ```{r}
-# Student's Primary Language
+# Student's Sex
 table <- data %>%
-   count("Primary Language" = primary_language ) %>% 
-   filter(n > 3) %>% 
-  arrange(desc(n))
+  group_by(suyi) %>% 
+   count("Sex" = sex ) %>%
+   adorn_percentages(denominator = "col") %>% 
+  adorn_pct_formatting() %>%
+  adorn_ns()
 
-kable(table, caption = "Student's Primary Language") 
+kable(table, caption = "Student's Sex", col.names = c("Group","Sex", "Percent (Total)")) 
 
-ggplot(data, aes(x= reorder(primary_language, primary_language,function(x)length(x)), fill= suyi)) + geom_bar(position = "dodge") + scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip() + labs(x= "Primary Language")
+data %>% 
+ggplot(aes(x= reorder(sex, primary_language,function(x)length(x)), fill= suyi)) + geom_bar(position = "dodge") + scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip() + labs(x= "Sex")
 ```
 
+```{r}
+# Student's Race
+table <- data %>%
+  group_by(suyi) %>% 
+   count("Racial Identity" = race ) %>%
+   adorn_percentages(denominator = "col") %>% 
+  adorn_pct_formatting() %>%
+  adorn_ns()
+
+kable(table, caption = "Student's Primary Language", col.names = c("Group","Racial Identity", "Percent (Total)")) 
+
+data %>% 
+ggplot(aes(x= reorder(race, primary_language,function(x)length(x)), fill= suyi)) + geom_bar(position = "dodge") + scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip() + labs(x= "Racial Identity")
+```
+
+```{r}
+# Student's Primary Language
+table <- data %>%
+  group_by(suyi) %>% 
+   filter(primary_language != "English") %>% 
+   count("Primary Language" = primary_language ) %>%
+  filter(n >= 8) %>% 
+   adorn_percentages(denominator = "col") %>% 
+  adorn_pct_formatting() %>%
+  adorn_ns()
+
+kable(table, caption = "Student's Primary Language", col.names = c("Group","Primary Language", "Percent (Total)")) 
+
+data %>% 
+  filter(primary_language != "English") %>% 
+ggplot(aes(x= reorder(primary_language, primary_language,function(x)length(x)), fill= suyi)) + geom_bar(position = "dodge") + scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip() + labs(x= "Primary Language")
+```
 
 ```{r}
 # Number of Bilingual Student 
@@ -188,14 +243,15 @@ table <- data %>%
   group_by("Group" = suyi) %>%
   summarise(
     "n" = sum(as.numeric(bilingual)),
-    "Percent Bilingual" = round((n/n())*100,2),
-  )
-kable(table, caption = "Bilingual Students")
+    "Percent Bilingual" = round((n/n())*100,2))
+
+kable(table, caption = "Bilingual Students", col.names = c("Group", "Total", "Percent"))
 
 data %>% 
   group_by(suyi) %>% 
   summarise(y = round((sum(bilingual)/n())*100,2)) %>% 
   ggplot(aes(suyi,y, fill = suyi, fill = suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(x = "", y = "Percent", color= "Group") + scale_y_continuous(limits=c(0, 100)) + geom_col() + coord_flip()
+
 ```
 
 ```{r}
@@ -206,7 +262,7 @@ table <- data %>%
     "n" = sum(as.numeric(homeless)),
     "Percent Homeless" = round((n/n())*100,2),
   )
-kable(table, caption = "Students Experiencing Homelessness")
+kable(table, caption = "Students Experiencing Homelessness", col.names = c("Group", "Total", "Percent"))
 
 data %>% 
   group_by(suyi) %>% 
@@ -214,25 +270,81 @@ data %>%
   ggplot(aes(suyi,y, fill = suyi, fill = suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(x = "", y = "Percent", color= "Group") + scale_y_continuous(limits=c(0, 100)) + geom_col() + coord_flip()
 ```
 
-
 ---
-# Students Attendance 
-A student is considered "chronically absent" when they miss 15 or more days of instruction in one academic school year.
-```{r}
 
+# Students Attendance 
+A student is considered "chronically absent" when they miss 15 or more days of instruction in one academic school year. Chronic absenteeism can lead to student's missing important instructional time, ultimately causing students to fall behind in their academics. Furthermore, when students miss school they also miss important social interaction times that develop their interpersonal skills. 
+
+According to this analysis, the average student in the Youth Initative Zone misses 12 days of instruction. High Schools students make up for the majority of the days missed, with New Futures Alternative, Cascade High School, and Olympic High School having the highest median of absenteeism. On the other hand, elementary school students account for the least amount of absences. Horizon, Franklin, and Valley Elementary have the lowest amount of students missing school. 
+
+```{r}
 table <- data %>% 
   group_by("Group" = suyi) %>%
   summarise(
     "Min" = min(days_absent),
     "Median" = median(days_absent),
     "Mean" = mean(days_absent),
-    "Max" = max(days_absent),
-  )
-kable(table, caption = "Days Absent") 
+    "Max" = max(days_absent))
 
+kable(table, caption = "School Absenteeism") 
 
 data %>% 
-  ggplot(aes(reorder(school, days_absent, FUN = median), days_absent)) + geom_boxplot() + coord_flip() + labs(x = "School", y = "Days Absent")
+  ggplot(aes(reorder(school, days_absent, FUN = median), days_absent)) + geom_boxplot(fill = "grey90") + coord_flip() + labs(x = "School", y = "Days Absent")
+
+```
+
+```{r}
+#Elementary Attendance 
+
+table <- elem %>% 
+  group_by("School" = school) %>%
+  summarise(
+    "Min" = min(days_absent),
+    "Median" = median(days_absent),
+    "Mean" = mean(days_absent),
+    "Max" = max(days_absent))%>% 
+  arrange(desc(Median))
+
+kable(table, caption = "Elementary School Absenteeism") 
+
+elem %>% 
+  ggplot(aes(reorder(school, days_absent, FUN = median), days_absent)) + geom_boxplot(fill = "#4F95DB") + coord_flip() + labs(x = "School", y = "Days Absent")
+```
+
+```{r}
+#Middle School Attendance 
+
+table <- middle %>% 
+  group_by("School" = school) %>%
+  summarise(
+    "Min" = min(days_absent),
+    "Median" = median(days_absent),
+    "Mean" = mean(days_absent),
+    "Max" = max(days_absent))%>% 
+  arrange(desc(Median))
+
+kable(table, caption = "Middle School Absenteeism") 
+
+middle %>% 
+  ggplot(aes(reorder(school, days_absent, FUN = median), days_absent)) + geom_boxplot(fill = "#DBA14F") + coord_flip() + labs(x = "School", y = "Days Absent")
+```
+
+```{r}
+#High School Attendance 
+
+table <- hs %>% 
+  group_by("School" = school) %>%
+  summarise(
+    "Min" = min(days_absent),
+    "Median" = median(days_absent),
+    "Mean" = mean(days_absent),
+    "Max" = max(days_absent)) %>% 
+  arrange(desc(Median))
+
+kable(table, caption = "High School Absenteeism") 
+
+hs %>% 
+  ggplot(aes(reorder(school, days_absent, FUN = median), days_absent)) + geom_boxplot(fill = "#2ca25f") + coord_flip() + labs(x = "School", y = "Days Absent")
 ```
 
 ---
@@ -258,33 +370,31 @@ df %>%
 ```
 
 ```{r, warning=F}
-
 #Average RIT Score by Semester
 df_long %>% 
-  ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black","#AA0000", "grey")) + labs(title= "Average RIT Score by Semester" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge")  + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) #+ coord_flip() + facet_wrap(~semester)
+  ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black", "grey","#AA0000")) + labs(title= "Average RIT Score by Semester" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge")  + scale_y_continuous(breaks = c(0,50,100,150,200,250,300))  + facet_wrap(~sex + suyi)
 ```
 
 ```{r, warning=F}
 #Average RIT Score by Grade Level
 df_long %>% 
-  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Grade Level" ,subtitle = "elementary is grades 1-5, middle is 6-8, and high school is 9-12", x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~grade_level) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) + coord_flip() 
+  ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black", "grey","#AA0000")) + labs(title= "Average RIT Score by Grade Level" ,subtitle = "elementary is grades K-5, middle is 6-8, and high school is 9-12", x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~grade_level + suyi, nrow = 3) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300))
 ```
 
 ```{r, warning=F}
 #Average RIT Score by Race
 df_long %>% 
-  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Race" ,x = NULL, y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~race) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300))
+  ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black", "grey","#AA0000")) + labs(title= "Average RIT Score by Race" ,x = NULL, y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~race) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300))
 ```
 
 ```{r, warning=F}
 #Average RIT Score by Sex
 df_long %>% 
-  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Sex" ,x = NULL, y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~sex) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) + coord_flip()
+  ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black", "grey","#AA0000")) + labs(title= "Average RIT Score by Sex" ,x = NULL, y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~sex) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300))
 ```
 
  
 -Create a t-test to determine if being in the youth program affects students test scores versus those who are not in the program 
--Make a graphs showing the race of all the students 
 -Make tables to accompany each graph made 
 - Find out what the national rit score is and then graph a line on the graph showing where SUYI fall within that range
 - Write up a summary of the findings 
