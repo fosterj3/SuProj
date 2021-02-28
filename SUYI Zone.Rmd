@@ -261,7 +261,7 @@ df %>%
 
 #Average RIT Score by Semester
 df_long %>% 
-  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Semester" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~semester) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) + coord_flip()
+  ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black","#AA0000", "grey")) + labs(title= "Average RIT Score by Semester" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge")  + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) #+ coord_flip() + facet_wrap(~semester)
 ```
 
 ```{r, warning=F}
@@ -279,9 +279,14 @@ df_long %>%
 ```{r, warning=F}
 #Average RIT Score by Sex
 df_long %>% 
-  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Sex" ,x = NULL, y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~sex) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) 
+  ggplot(aes(subject, rit_score, fill= suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(title= "Average RIT Score by Sex" ,x = NULL, y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~sex) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300)) + coord_flip()
 ```
 
  
+-Create a t-test to determine if being in the youth program affects students test scores versus those who are not in the program 
+-Make a graphs showing the race of all the students 
+-Make tables to accompany each graph made 
+- Find out what the national rit score is and then graph a line on the graph showing where SUYI fall within that range
+- Write up a summary of the findings 
 
 
