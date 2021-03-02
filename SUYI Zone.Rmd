@@ -167,21 +167,107 @@ df_long$semester <- factor(df_long$semester,
 
 ```
 
+```{r}
+#Create smaller data frame for dumbbell viz
+
+## Summarize Mean by School
+mean_math <- df %>% 
+  group_by(school, grade_level) %>% 
+  summarise(mean_fall_math = mean(fall_math, na.rm = T),
+            mean_spring_math = mean(spring_math, na.rm = T))
+
+mean_read <- df %>% 
+  group_by(school,grade_level) %>% 
+  summarise(mean_fall_reading = mean(fall_reading, na.rm = T),
+            mean_spring_reading = mean(spring_reading, na.rm = T))
+
+## Turn summaries into a dataframe
+mean_math <- as.data.frame(mean_math)
+mean_read <- as.data.frame(mean_read)
+
+## Create a Mean difference column 
+mean_math <- mean_math %>% 
+  mutate(mean_math_diff = round(mean_spring_math - mean_fall_math,2)) 
+
+mean_read <- mean_read %>% 
+  mutate(mean_reading_diff = round(mean_spring_reading - mean_fall_reading,2)) 
+```
+ 
+```{r}
+# Create Mean_Read and Mean_Math datasets for each grade level 
+
+## Math
+elem_mean_math <- mean_math %>% filter(grade_level == "elementary") %>% arrange(desc(mean_math_diff))
+middle_mean_math <- mean_math %>% filter(grade_level == "middle") %>% arrange(desc(mean_math_diff))
+hs_mean_math <- mean_math %>% filter(grade_level == "high school") %>% arrange(desc(mean_math_diff))
+
+
+## Reading 
+elem_mean_reading <- mean_read %>% filter(grade_level == "elementary") %>% arrange(desc(mean_reading_diff))
+middle_mean_reading <- mean_read %>% filter(grade_level == "middle") %>% arrange(desc(mean_reading_diff))
+hs_mean_reading <- mean_read %>% filter(grade_level == "high school") %>% arrange(desc(mean_reading_diff))
+```
+ 
+```{r}
+# Order School variable by mean reading difference variable
+
+## Reading
+elem_mean_reading$school <- fct_reorder(elem_mean_reading$school, elem_mean_reading$mean_reading_diff, max)
+
+middle_mean_reading$school <- fct_reorder(middle_mean_reading$school, middle_mean_reading$mean_reading_diff, max)
+
+hs_mean_reading$school <- fct_reorder(hs_mean_reading$school, hs_mean_reading$mean_reading_diff, max)
+
+
+## Math
+elem_mean_math$school <- fct_reorder(elem_mean_math$school, elem_mean_math$mean_math_diff, max)
+
+middle_mean_math$school <- fct_reorder(middle_mean_math$school, middle_mean_math$mean_math_diff, max)
+
+hs_mean_math$school <- fct_reorder(hs_mean_math$school, hs_mean_math$mean_math_diff, max)
+```
+
 ---
 
 # Youth Initiative Zone Schools and Students
 
 ```{r}
-table <- data %>%
-  group_by(School = school, Group = suyi) %>%
+table <- elem %>%
+  group_by(School = school) %>%
   summarise("Total" = n()) %>%
+  arrange(desc(Total)) %>% 
   adorn_totals("row") %>% 
   adorn_percentages(denominator = "col") %>% 
   adorn_pct_formatting() %>%
-  adorn_ns()
+  adorn_ns() 
 
 
-kable(table, caption = "Respondents by School", col.names = c("School Name", "Group", "Percent (Total)")) 
+kable(table, caption= "Elementary Schools (K-5)", col.names = c("School Name", "Percent (Total)")) 
+
+
+table <- middle %>%
+  group_by(School = school) %>%
+  summarise("Total" = n()) %>%
+  arrange(desc(Total)) %>% 
+  adorn_totals("row") %>% 
+  adorn_percentages(denominator = "col") %>% 
+  adorn_pct_formatting() %>%
+  adorn_ns() 
+
+
+kable(table, caption= "Middle Schools (6-8)", col.names = c("School Name", "Percent (Total)")) 
+
+table <- hs %>%
+  group_by(School = school) %>%
+  summarise("Total" = n()) %>%
+  arrange(desc(Total)) %>% 
+  adorn_totals("row") %>% 
+  adorn_percentages(denominator = "col") %>% 
+  adorn_pct_formatting() %>%
+  adorn_ns() 
+
+
+kable(table, caption= "High Schools (9-12)", col.names = c("School Name", "Percent (Total)")) 
 
 
 data %>%
@@ -215,13 +301,12 @@ ggplot(aes(x= reorder(sex, primary_language,function(x)length(x)), fill= suyi)) 
 ```{r}
 # Student's Race
 table <- data %>%
-  group_by(suyi) %>% 
-   count("Racial Identity" = race ) %>%
+   count("Racial Identity" = race, sort = T ) %>%
    adorn_percentages(denominator = "col") %>% 
   adorn_pct_formatting() %>%
   adorn_ns()
 
-kable(table, caption = "Student's Primary Language", col.names = c("Group","Racial Identity", "Percent (Total)")) 
+kable(table, caption = "Student's Racial Identity", col.names = c("Racial Identity", "Percent (Total)")) 
 
 data %>% 
 ggplot(aes(x= reorder(race, primary_language,function(x)length(x)), fill= suyi)) + geom_bar(position = "dodge") + scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip() + labs(x= "Racial Identity")
@@ -230,15 +315,14 @@ ggplot(aes(x= reorder(race, primary_language,function(x)length(x)), fill= suyi))
 ```{r}
 # Student's Primary Language
 table <- data %>%
-  group_by(suyi) %>% 
    filter(primary_language != "English") %>% 
-   count("Primary Language" = primary_language ) %>%
+   count("Primary Language" = primary_language, sort = T) %>%
   filter(n >= 8) %>% 
    adorn_percentages(denominator = "col") %>% 
   adorn_pct_formatting() %>%
   adorn_ns()
 
-kable(table, caption = "Student's Primary Language", col.names = c("Group","Primary Language", "Percent (Total)")) 
+kable(table, caption = "Student's Primary Language", col.names = c("Primary Language", "Percent (Total)")) 
 
 data %>% 
   filter(primary_language != "English") %>% 
@@ -248,12 +332,11 @@ ggplot(aes(x= reorder(primary_language, primary_language,function(x)length(x)), 
 ```{r}
 # Number of Bilingual Student 
 table <- data %>% 
-  group_by("Group" = suyi) %>%
   summarise(
     "n" = sum(as.numeric(bilingual)),
     "Percent Bilingual" = round((n/n())*100,2))
 
-kable(table, caption = "Bilingual Students", col.names = c("Group", "Total", "Percent"))
+kable(table, caption = "Bilingual Students", col.names = c("Total", "Percent"))
 
 data %>% 
   group_by(suyi) %>% 
@@ -265,12 +348,11 @@ data %>%
 ```{r}
 # Number of Students Experiencing Homelessness
 table <- data %>% 
-  group_by("Group" = suyi) %>%
   summarise(
     "n" = sum(as.numeric(homeless)),
     "Percent Homeless" = round((n/n())*100,2),
   )
-kable(table, caption = "Students Experiencing Homelessness", col.names = c("Group", "Total", "Percent"))
+kable(table, caption = "Students Experiencing Homelessness", col.names = c("Total", "Percent"))
 
 data %>% 
   group_by(suyi) %>% 
@@ -283,11 +365,10 @@ data %>%
 # Students Attendance 
 A student is considered "chronically absent" when they miss 15 or more days of instruction in one academic school year. Chronic absenteeism can lead to student's missing important instructional time, ultimately causing students to fall behind in their academics. Furthermore, when students miss school they also miss important social interaction times that develop their interpersonal skills. 
 
-According to this analysis, the average student in the Youth Initative Zone misses 12 days of instruction. High Schools students make up for the majority of the days missed, with New Futures Alternative, Cascade High School, and Olympic High School having the highest median of absenteeism. On the other hand, elementary school students account for the least amount of absences. Horizon, Franklin, and Valley Elementary have the lowest amount of students missing school. 
+According to this analysis, students in the Youth Initative Zone miss an average of 12 days of instruction. High School students make up for the majority of the days missed, with New Futures Alternative, Cascade High School, and Olympic High School having the highest median of absenteeism. On the other hand, elementary school students account for the least amount of absences. Horizon, Franklin, and Valley Elementary have the lowest amount of students missing school. 
 
 ```{r}
 table <- data %>% 
-  group_by("Group" = suyi) %>%
   summarise(
     "Min" = min(days_absent),
     "Median" = median(days_absent),
@@ -358,17 +439,12 @@ hs %>%
 ---
 
 # RIT Scores 
-```{r}
-tresults <- t.test(df$fall_math ~ df$suyi)
-tstar <- star(tresults$p.value)
-
+```{r, eval= FALSE}
 table <- df %>% 
   group_by("Group" = suyi) %>%
   summarise(
     "Mean" = round(mean(fall_math, na.rm = TRUE),2),
-    "Std. Err." = sd(fall_math, na.rm = TRUE)/sqrt(sum(!is.na(fall_math))),
-    "t-test" = tstar
-  )
+    "Std. Err." = sd(fall_math, na.rm = TRUE)/sqrt(sum(!is.na(fall_math))))
 kable(table, caption = "Fall Math Scores")
 
 df %>% 
@@ -377,16 +453,16 @@ df %>%
   ggplot(aes(suyi, mean, fill = suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(x = NULL, y = "Average", fill= "Group") + geom_col() + coord_flip() #+ geom_text(aes(label = round(mean,2),y = mean + 0.05), position = position_dodge(0.9), vjust = 0)
 ```
 
-```{r, warning=F}
-#Average RIT Score by Semester
+```{r, warning=F, eval = FALSE}
+#Average RIT Score by Sex
 df_long %>% 
-  ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black", "grey","#AA0000")) + labs(title= "Average RIT Score by Semester" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge")  + scale_y_continuous(breaks = c(0,50,100,150,200,250,300))  + facet_wrap(~sex + suyi)
+  ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black", "grey","#AA0000")) + labs(title= "Average RIT Score by Sex" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge")  + scale_y_continuous(breaks = c(0,50,100,150,200,250,300))  + facet_wrap(~sex + suyi)
 ```
 
-```{r, warning=F}
+```{r, warning=F, eval= FALSE}
 #Average RIT Score by Grade Level
 df_long %>% 
-  ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black", "grey","#AA0000")) + labs(title= "Average RIT Score by Grade Level" ,subtitle = "elementary is grades K-5, middle is 6-8, and high school is 9-12", x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~grade_level + suyi, nrow = 3) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300))
+  ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black", "grey","#AA0000")) + labs(title= "Average RIT Score by Grade Level" ,subtitle = "elementary is grades K-5, middle is 6-8, and high school is 9-12", x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~grade_level, nrow = 3) + scale_y_continuous(breaks = c(150,200,250,300))
 ```
 
 ```{r, warning=F}
@@ -409,69 +485,13 @@ elem %>%
  
 ```
  
+---
 
-```{r}
-#Create smaller data frame for dumbbell viz
-
-## Summarize Mean by School
-mean_math <- df %>% 
-  group_by(school, grade_level) %>% 
-  summarise(mean_fall_math = mean(fall_math, na.rm = T),
-            mean_spring_math = mean(spring_math, na.rm = T))
-
-mean_read <- df %>% 
-  group_by(school,grade_level) %>% 
-  summarise(mean_fall_reading = mean(fall_reading, na.rm = T),
-            mean_spring_reading = mean(spring_reading, na.rm = T))
-
-## Turn summaries into a dataframe
-mean_math <- as.data.frame(mean_math)
-mean_read <- as.data.frame(mean_read)
-
-## Create a Mean difference column 
-mean_math <- mean_math %>% 
-  mutate(mean_math_diff = round(mean_spring_math - mean_fall_math,2)) 
-
-mean_read <- mean_read %>% 
-  mutate(mean_reading_diff = round(mean_spring_reading - mean_fall_reading,2)) 
-```
- 
-```{r}
-# Create Mean_Read and Mean_Math datasets for each grade level 
-
-## Math
-elem_mean_math <- mean_math %>% filter(grade_level == "elementary") %>% arrange(desc(mean_math_diff))
-middle_mean_math <- mean_math %>% filter(grade_level == "middle") %>% arrange(desc(mean_math_diff))
-hs_mean_math <- mean_math %>% filter(grade_level == "high school") %>% arrange(desc(mean_math_diff))
-
+# RIT Growth Plots
 
 ## Reading 
-elem_mean_reading <- mean_read %>% filter(grade_level == "elementary") %>% arrange(desc(mean_reading_diff))
-middle_mean_reading <- mean_read %>% filter(grade_level == "middle") %>% arrange(desc(mean_reading_diff))
-hs_mean_reading <- mean_read %>% filter(grade_level == "high school") %>% arrange(desc(mean_reading_diff))
-```
- 
-```{r}
-# Order School variable by mean reading difference variable
 
-## Reading
-elem_mean_reading$school <- fct_reorder(elem_mean_reading$school, elem_mean_reading$mean_reading_diff, max)
-
-middle_mean_reading$school <- fct_reorder(middle_mean_reading$school, middle_mean_reading$mean_reading_diff, max)
-
-hs_mean_reading$school <- fct_reorder(hs_mean_reading$school, hs_mean_reading$mean_reading_diff, max)
-
-
-## Math
-elem_mean_math$school <- fct_reorder(elem_mean_math$school, elem_mean_math$mean_math_diff, max)
-
-middle_mean_math$school <- fct_reorder(middle_mean_math$school, middle_mean_math$mean_math_diff, max)
-
-hs_mean_math$school <- fct_reorder(hs_mean_math$school, hs_mean_math$mean_math_diff, max)
-```
- 
- # Average RIT Elementary Schools Scored From Fall to Spring
- 
+### Elementary Schools
 ```{r, warning = FALSE}
 # Elementary Reading Dumbbell Plot 
 ggplot(elem_mean_reading, aes(x=mean_fall_reading, xend=mean_spring_reading, y=school)) + geom_segment(aes(x=150, 
@@ -502,6 +522,7 @@ geom_text(data= filter(elem_mean_reading, school == "Valley Elementary"),
             color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(150, 250)) + scale_y_discrete(expand=c(0.2,0))
 ```
  
+### Middle Schools
 ```{r}
 #Middle Reading Dumbbell Plot 
 ggplot(middle_mean_reading, aes(x=mean_fall_reading, xend=mean_spring_reading, y=school)) + geom_segment(aes(x=150, 
@@ -532,7 +553,7 @@ geom_text(data= filter(middle_mean_reading, school == "Sound View Middle School"
             color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(150, 250)) + scale_y_discrete(expand=c(0.2,0))
 ```
  
- 
+### High Schools 
 ```{r}
 #High School Reading Dumbbell Plot 
 ggplot(hs_mean_reading, aes(x=mean_fall_reading, xend=mean_spring_reading, y=school)) + geom_segment(aes(x=150, 
