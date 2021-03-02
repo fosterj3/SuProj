@@ -45,6 +45,9 @@ if(!require(readxl)){
     install.packages("readxl", dependencies = TRUE)
     library(readxl)
 }
+
+library(RColorBrewer)
+library(ggalt)
 ```
 
 ```{r set_knitr_chunk_options, echo=FALSE, message=FALSE}
@@ -113,6 +116,11 @@ data$sped <- recode(data$sped, "N" = 0, "Y" = 1)
 data$bilingual <- recode(data$bilingual, "N" = 0, "Y" = 1)
 data$suyi <- recode(data$suyi, "1" = "SUYI-Focus", "0" = "SUYI")
 
+# Growth Index for math and reading 
+data <- data %>% 
+  mutate(math_growth = spring_math - fall_math ) %>% 
+  mutate(reading_growth = spring_reading - fall_reading) 
+
 data <- data %>% hablar::retype() 
 
 # Treat some variables as factors 
@@ -156,6 +164,7 @@ hs <- df %>% filter(grade_level == "high school")
 df_long$semester <- factor(df_long$semester, 
                          levels = c("fall", "winter", "spring"), 
                          labels = c("fall", "winter", "spring"))
+
 
 ```
 
@@ -393,6 +402,77 @@ df_long %>%
   ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black", "grey","#AA0000")) + labs(title= "Average RIT Score by Sex" ,x = NULL, y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~sex) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300))
 ```
 
+```{r}
+#RIT Math Growth 
+elem %>% 
+  filter(!is.na(math_growth)) %>% 
+  ggplot(aes(reorder(school, math_growth, FUN = median), math_growth, fill = school)) + geom_boxplot()  + labs(x = "School", y = "Math Growth") + coord_flip() + scale_fill_brewer(palette="RdBu")
+ 
+```
+ 
+ 
+```{r, eval= F}
+#Create smaller data frame for dumbbell viz
+
+## Summarize Mean by School
+mean_math <- data %>% 
+  group_by(school) %>% 
+  summarise(mean_fall_math = mean(fall_math, na.rm = T),
+            mean_spring_math = mean(spring_math, na.rm = T))
+
+mean_read <- data %>% 
+  group_by(school) %>% 
+  summarise(mean_fall_reading = mean(fall_reading, na.rm = T),
+            mean_spring_reading = mean(spring_reading, na.rm = T))
+
+## Turn summaries into a dataframe
+mean_math <- as.data.frame(mean_math)
+mean_read <- as.data.frame(mean_read)
+
+## Create a Mean difference column 
+mean_math <- mean_math %>% 
+  mutate(mean_math_diff = round(mean_spring_math - mean_fall_math,2)) 
+
+mean_read <- mean_read %>% 
+  mutate(mean_reading_diff = round(mean_spring_reading - mean_fall_reading,2)) 
+```
+ 
+ 
+```{r}
+
+ggplot() + geom_segment(data=mean_read, aes(y= school, yend=school, x=100, xend= 250), color = "#AA0000", size=.15) + geom_dumbbell(mean_read, aes(y=school, x=mean_fall_reading, xend=mean_spring_reading),size=1.5, color="#b2b2b2", size_x=3, size_xend = 3, colour_x = "orange", colour_xend = "green")
+
+```
+ 
+```{r}
+ggplot(mean_read, aes(x=mean_fall_reading, xend=mean_spring_reading, y=school)) + geom_segment(aes(x=mean_fall_reading, 
+                         xend=mean_spring_reading, 
+                         y=school, 
+                         yend=school), 
+                     color="#b2b2b2", size=1.5)+
+        geom_dumbbell(color="light blue", 
+                      size_x=3.5, 
+                      size_xend = 3.5,
+                      #Note: there is no US:'color' for UK:'colour' 
+                      # in geom_dumbbel unlike standard geoms in ggplot()
+                      colour_x="brown", 
+                      colour_xend = "#9fb059")+
+        labs(x=NULL, y=NULL, 
+             title="Fall to Spring RIT Reading Scores", 
+             subtitle="2014 School year")+
+        geom_text(color="black", size=2, hjust=-0.5,
+                  aes(x=mean_fall_reading, label= round(mean_fall_reading,2)))+
+        geom_text(aes(x=mean_spring_reading, label= round(mean_spring_reading,2)), 
+                  color="black", size=2, hjust=1.5)
+```
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  
 -Create a t-test to determine if being in the youth program affects students test scores versus those who are not in the program 
 -Make tables to accompany each graph made 
