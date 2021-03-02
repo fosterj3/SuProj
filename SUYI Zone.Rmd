@@ -402,7 +402,7 @@ df_long %>%
   ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black", "grey","#AA0000")) + labs(title= "Average RIT Score by Sex" ,x = NULL, y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~sex) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300))
 ```
 
-```{r}
+```{r, eval= FALSE}
 #RIT Math Growth 
 elem %>% 
   filter(!is.na(math_growth)) %>% 
@@ -411,17 +411,17 @@ elem %>%
 ```
  
  
-```{r, eval= F}
+```{r}
 #Create smaller data frame for dumbbell viz
 
 ## Summarize Mean by School
-mean_math <- data %>% 
-  group_by(school) %>% 
+mean_math <- df %>% 
+  group_by(school, grade_level) %>% 
   summarise(mean_fall_math = mean(fall_math, na.rm = T),
             mean_spring_math = mean(spring_math, na.rm = T))
 
-mean_read <- data %>% 
-  group_by(school) %>% 
+mean_read <- df %>% 
+  group_by(school,grade_level) %>% 
   summarise(mean_fall_reading = mean(fall_reading, na.rm = T),
             mean_spring_reading = mean(spring_reading, na.rm = T))
 
@@ -437,36 +437,101 @@ mean_read <- mean_read %>%
   mutate(mean_reading_diff = round(mean_spring_reading - mean_fall_reading,2)) 
 ```
  
- 
 ```{r}
+# Create Mean_Read and Mean_Math datasets for each grade level 
 
-ggplot() + geom_segment(data=mean_read, aes(y= school, yend=school, x=100, xend= 250), color = "#AA0000", size=.15) + geom_dumbbell(mean_read, aes(y=school, x=mean_fall_reading, xend=mean_spring_reading),size=1.5, color="#b2b2b2", size_x=3, size_xend = 3, colour_x = "orange", colour_xend = "green")
+## Math
+elem_mean_math <- mean_math %>% filter(grade_level == "elementary") %>% arrange(desc(mean_math_diff))
+middle_mean_math <- mean_math %>% filter(grade_level == "middle") %>% arrange(desc(mean_math_diff))
+hs_mean_math <- mean_math %>% filter(grade_level == "high school") %>% arrange(desc(mean_math_diff))
 
+
+## Reading 
+elem_mean_reading <- mean_read %>% filter(grade_level == "elementary") %>% arrange(desc(mean_reading_diff))
+middle_mean_reading <- mean_read %>% filter(grade_level == "middle") %>% arrange(desc(mean_reading_diff))
+hs_mean_reading <- mean_read %>% filter(grade_level == "high school") %>% arrange(desc(mean_reading_diff))
 ```
  
 ```{r}
-ggplot(mean_read, aes(x=mean_fall_reading, xend=mean_spring_reading, y=school)) + geom_segment(aes(x=mean_fall_reading, 
-                         xend=mean_spring_reading, 
+# Order School variable by mean reading difference variable
+
+## Reading
+elem_mean_reading$school <- fct_reorder(elem_mean_reading$school, elem_mean_reading$mean_reading_diff, max)
+
+middle_mean_reading$school <- fct_reorder(middle_mean_reading$school, middle_mean_reading$mean_reading_diff, max)
+
+hs_mean_reading$school <- fct_reorder(hs_mean_reading$school, hs_mean_reading$mean_reading_diff, max)
+
+
+## Math
+elem_mean_math$school <- fct_reorder(elem_mean_math$school, elem_mean_math$mean_math_diff, max)
+
+middle_mean_math$school <- fct_reorder(middle_mean_math$school, middle_mean_math$mean_math_diff, max)
+
+hs_mean_math$school <- fct_reorder(hs_mean_math$school, hs_mean_math$mean_math_diff, max)
+```
+ 
+ # Average RIT Elementary Schools 
+ 
+```{r, warning = FALSE}
+# Elementary Reading Dumbbell Plot 
+ggplot(elem_mean_reading, aes(x=mean_fall_reading, xend=mean_spring_reading, y=school)) + geom_segment(aes(x=150, 
+                         xend=200, 
                          y=school, 
                          yend=school), 
-                     color="#b2b2b2", size=1.5)+
-        geom_dumbbell(color="light blue", 
+                     color="grey90", size=1)+
+        geom_dumbbell(color="black", 
                       size_x=3.5, 
                       size_xend = 3.5,
-                      #Note: there is no US:'color' for UK:'colour' 
-                      # in geom_dumbbel unlike standard geoms in ggplot()
-                      colour_x="brown", 
-                      colour_xend = "#9fb059")+
-        labs(x=NULL, y=NULL, 
-             title="Fall to Spring RIT Reading Scores", 
-             subtitle="2014 School year")+
-        geom_text(color="black", size=2, hjust=-0.5,
-                  aes(x=mean_fall_reading, label= round(mean_fall_reading,2)))+
-        geom_text(aes(x=mean_spring_reading, label= round(mean_spring_reading,2)), 
-                  color="black", size=2, hjust=1.5)
+                      colour_x="black", 
+                      colour_xend = "#AA0000")+
+        labs(x="Reading Score", y="School", 
+             title="Fall to Spring Average RIT Reading Scores", 
+             caption="2014 School year") +
+    geom_text(data=filter(elem_mean_reading, school == "Valley Elementary"), aes(x=mean_fall_reading, y=school, label="Fall"),
+          color="black", size=2.75, vjust=-2.5, position = position_dodge(width = 2)) +
+geom_text(data=filter(elem_mean_reading, school == "Valley Elementary"), color="#AA0000", size=2.75, vjust=-2.5,
+          aes(x=mean_spring_reading, y=school, label="Spring"), position = position_dodge(width = 2)) +
+  geom_text(data=elem_mean_reading, aes(x=mean_fall_reading, y=school, label=round(mean_fall_reading,2)),
+          color="black", size=2.75, vjust=2.5, position = position_dodge(width = 2)) +
+geom_text(data=elem_mean_reading, color="black", size=2.75, vjust=2.5,
+          aes(x=mean_spring_reading, y=school, label=round(mean_spring_reading,2)), position = position_dodge(width = 2)) +
+  geom_rect(data=elem_mean_reading, aes(xmin=193, xmax=200, ymin=-Inf, ymax=Inf), fill="grey90") +
+geom_text(data=elem_mean_reading, aes(label=paste0(round(mean_reading_diff,2)), y=school, x=195), fontface="bold", size=3) +
+geom_text(data= filter(elem_mean_reading, school == "Valley Elementary"), 
+            aes(x=195.5, y=school, label="Difference"),
+            color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(150, 200)) + scale_y_discrete(expand=c(0.2,0))
 ```
  
- 
+```{r}
+#Middle Reading Dumbbell Plot 
+ggplot(middle_mean_reading, aes(x=mean_fall_reading, xend=mean_spring_reading, y=school)) + geom_segment(aes(x=150, 
+                         xend=250, 
+                         y=school, 
+                         yend=school), 
+                     color="grey90", size=1)+
+        geom_dumbbell(color="black", 
+                      size_x=3.5, 
+                      size_xend = 3.5,
+                      colour_x="black", 
+                      colour_xend = "#AA0000")+
+        labs(x="Reading Score", y="School", 
+             title="Fall to Spring Average RIT Reading Scores", 
+             caption="2014 School year") +
+    geom_text(data=filter(middle_mean_reading, school == "Sound View Middle School"), aes(x=mean_fall_reading, y=school, label="Fall"),
+          color="black", size=2.75, vjust=-2.5, position = position_dodge(width = .5)) +
+geom_text(data=filter(middle_mean_reading, school == "Sound View Middle School"), color="#AA0000", size=2.75, vjust=-2.5,
+          aes(x=mean_spring_reading, y=school, label="Spring"), position = position_dodge(width = 2)) +
+  geom_text(data=middle_mean_reading, aes(x=mean_fall_reading, y=school, label=round(mean_fall_reading,2)),
+          color="black", size=2.75, vjust=2.5, position = position_dodge(width = .5)) +
+geom_text(data=middle_mean_reading, color="black", size=2.75, vjust=2.5,
+          aes(x=mean_spring_reading, y=school, label=round(mean_spring_reading,2)), position = position_dodge(width = 5)) +
+  geom_rect(data=middle_mean_reading, aes(xmin=230, xmax=250, ymin=-Inf, ymax=Inf), fill="grey90") +
+geom_text(data=middle_mean_reading, aes(label=paste0(round(mean_reading_diff,2)), y=school, x=240), fontface="bold", size=3) +
+geom_text(data= filter(middle_mean_reading, school == "Sound View Middle School"), 
+            aes(x=240, y=school, label="Difference"),
+            color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(150, 250)) + scale_y_discrete(expand=c(0.2,0))
+```
  
  
  
