@@ -49,6 +49,7 @@ library(RColorBrewer)
 library(ggalt)
 library(ggrepel)
 library(kableExtra)
+library(waffle)
 ```
 
 ```{r set_knitr_chunk_options, echo=FALSE, message=FALSE}
@@ -333,14 +334,12 @@ table <- data %>%
 
 kable(table, caption = "Bilingual Students", col.names = c("Total", "Percent"), full_width = F) %>% kable_styling(full_width = F, bootstrap_options = "responsive", position = "left", fixed_thead = T)
 
-library(waffle)
 
-bilingual <- c(34, 66)
+bilingual <- c(Bilingual = 34, Monolingual= 66)
 waffle(bilingual, rows=5, size=0.5, 
        colors = c("#AA0000", "black"),
        title="Percent of Bilingual Students", 
        xlab="1 square = 1 Percent")
-
 ```
 
 ```{r}
@@ -352,10 +351,11 @@ table <- data %>%
   )
 kable(table, caption = "Students Experiencing Homelessness", col.names = c("Total", "Percent"), full_width = F) %>% kable_styling(full_width = F, bootstrap_options = "responsive", position = "left", fixed_thead = T)
 
-data %>% 
-  group_by(suyi) %>% 
-  summarise(y = round((sum(homeless)/n())*100,2)) %>% 
-  ggplot(aes(suyi,y, fill = suyi, fill = suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(x = "", y = "Percent", fill= "Group") + scale_y_continuous(limits=c(0, 100)) + geom_col() + coord_flip()
+homeless <- c(Homeless = 7, `Not Homeless`= 93)
+waffle(homeless, rows=5, size=0.5, 
+       colors = c("#AA0000", "black"),
+       title="Percent of Students Experiencing Homelessness", 
+       xlab="1 square = 1 Percent")
 ```
 
 ---
