@@ -47,6 +47,8 @@ if(!require(readxl)){
 
 library(RColorBrewer)
 library(ggalt)
+library(ggrepel)
+library(kableExtra)
 ```
 
 ```{r set_knitr_chunk_options, echo=FALSE, message=FALSE}
@@ -60,26 +62,6 @@ data <- read_xlsx("interview_data.xlsx")
 
 #setting theme and centering the titles for ggplots
 theme_set(theme_classic())
-```
-
-```{r}
-#R function to add significance stars to a p-value
-star <- function(pval) {
-  if (pval <= 0.001) {
-    return("p < .001")
-  }
-  if (pval <= 0.01) {
-    return(" p < .01")
-  }		
-  if (pval <= 0.05) {
-    return(" p < .05")
-  }
-  #if (pval <= 0.1) {
-  #  return("p < .1")
-  #}
-  else {return("n.s.")
-  }
-}
 ```
 
 ```{r}
@@ -232,6 +214,20 @@ hs_mean_math$school <- fct_reorder(hs_mean_math$school, hs_mean_math$mean_math_d
 # Youth Initiative Zone Schools and Students
 
 ```{r}
+table <- data %>%
+  group_by(School = school) %>%
+  summarise("Total" = n()) %>%
+  arrange(desc(Total)) %>% 
+  adorn_totals("row") %>% 
+  adorn_percentages(denominator = "col") %>% 
+  adorn_pct_formatting() %>%
+  adorn_ns() 
+
+
+kable(table, caption= "Total Number of Students in the Seattle University Youth Initiative Zone", col.names = c("School Name", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
+
+
+
 table <- elem %>%
   group_by(School = school) %>%
   summarise("Total" = n()) %>%
@@ -242,7 +238,7 @@ table <- elem %>%
   adorn_ns() 
 
 
-kable(table, caption= "Elementary Schools (K-5)", col.names = c("School Name", "Percent (Total)")) 
+kable(table, caption= "Elementary Schools (K-5)", col.names = c("School Name", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
 
 
 table <- middle %>%
@@ -255,7 +251,7 @@ table <- middle %>%
   adorn_ns() 
 
 
-kable(table, caption= "Middle Schools (6-8)", col.names = c("School Name", "Percent (Total)")) 
+kable(table, caption= "Middle Schools (6-8)", col.names = c("School Name", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
 
 table <- hs %>%
   group_by(School = school) %>%
@@ -267,18 +263,17 @@ table <- hs %>%
   adorn_ns() 
 
 
-kable(table, caption= "High Schools (9-12)", col.names = c("School Name", "Percent (Total)")) 
+kable(table, caption= "High Schools (9-12)", col.names = c("School Name", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
 
 
 data %>%
-   group_by(School = school, SUYI = suyi) %>%
+   group_by(school) %>%
   summarise("Total" = n()) %>% 
-ggplot(aes(School, Total)) +
-  geom_col(aes(fill = SUYI, x= reorder(School, Total)), position = "dodge") +
-  scale_y_continuous(breaks = c(0,25,50,75,100,125,150)) +
+  ggplot(aes(school, Total,group= school)) +
+  geom_col(aes(x= reorder(school, Total)), fill = "#AA0000") +
+  scale_y_continuous(breaks = c(0,25,50,75,100,125,150, 175)) +
   labs(x = "School", 
-       y = "Number of Respondents") +
-  scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip()
+       y = "Number of Students") + coord_flip() + theme(legend.position = "none")
 ```
 
 # Youth Initiative Zone Student Demographics 
@@ -292,10 +287,10 @@ table <- data %>%
   adorn_pct_formatting() %>%
   adorn_ns()
 
-kable(table, caption = "Student's Sex", col.names = c("Group","Sex", "Percent (Total)")) 
+kable(table, caption = "Student's Sex", col.names = c("Group","Sex", "Percent (Total)"))%>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T) 
 
 data %>% 
-ggplot(aes(x= reorder(sex, primary_language,function(x)length(x)), fill= suyi)) + geom_bar(position = "dodge") + scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip() + labs(x= "Sex")
+ggplot(aes(x= reorder(sex, primary_language,function(x)length(x)), fill= suyi)) + geom_bar(position = "dodge") + scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip() + labs(x= "Sex", fill = "Group")
 ```
 
 ```{r}
@@ -306,10 +301,10 @@ table <- data %>%
   adorn_pct_formatting() %>%
   adorn_ns()
 
-kable(table, caption = "Student's Racial Identity", col.names = c("Racial Identity", "Percent (Total)")) 
+kable(table, caption = "Student's Racial Identity", col.names = c("Racial Identity", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
 
 data %>% 
-ggplot(aes(x= reorder(race, primary_language,function(x)length(x)), fill= suyi)) + geom_bar(position = "dodge") + scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip() + labs(x= "Racial Identity")
+ggplot(aes(x= reorder(race, primary_language,function(x)length(x)))) + geom_bar(position = "dodge", fill = "black") + coord_flip() + labs(x= "Racial Identity")
 ```
 
 ```{r}
@@ -322,26 +317,29 @@ table <- data %>%
   adorn_pct_formatting() %>%
   adorn_ns()
 
-kable(table, caption = "Student's Primary Language", col.names = c("Primary Language", "Percent (Total)")) 
+kable(table, caption = "Student's Primary Language", col.names = c("Primary Language", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
 
 data %>% 
   filter(primary_language != "English") %>% 
-ggplot(aes(x= reorder(primary_language, primary_language,function(x)length(x)), fill= suyi)) + geom_bar(position = "dodge") + scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip() + labs(x= "Primary Language")
+ggplot(aes(x= reorder(primary_language, primary_language,function(x)length(x)))) + geom_bar(position = "dodge", fill = "#AA0000") + scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip() + labs(x= "Primary Language")
 ```
 
 ```{r}
 # Number of Bilingual Student 
 table <- data %>% 
   summarise(
-    "n" = sum(as.numeric(bilingual)),
+    "n" = sum(bilingual),
     "Percent Bilingual" = round((n/n())*100,2))
 
-kable(table, caption = "Bilingual Students", col.names = c("Total", "Percent"))
+kable(table, caption = "Bilingual Students", col.names = c("Total", "Percent"), full_width = F) %>% kable_styling(full_width = F, bootstrap_options = "responsive", position = "left", fixed_thead = T)
 
-data %>% 
-  group_by(suyi) %>% 
-  summarise(y = round((sum(bilingual)/n())*100,2)) %>% 
-  ggplot(aes(suyi,y, fill = suyi, fill = suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(x = "", y = "Percent", color= "Group") + scale_y_continuous(limits=c(0, 100)) + geom_col() + coord_flip()
+library(waffle)
+
+bilingual <- c(34, 66)
+waffle(bilingual, rows=5, size=0.5, 
+       colors = c("#AA0000", "black"),
+       title="Percent of Bilingual Students", 
+       xlab="1 square = 1 Percent")
 
 ```
 
@@ -352,17 +350,17 @@ table <- data %>%
     "n" = sum(as.numeric(homeless)),
     "Percent Homeless" = round((n/n())*100,2),
   )
-kable(table, caption = "Students Experiencing Homelessness", col.names = c("Total", "Percent"))
+kable(table, caption = "Students Experiencing Homelessness", col.names = c("Total", "Percent"), full_width = F) %>% kable_styling(full_width = F, bootstrap_options = "responsive", position = "left", fixed_thead = T)
 
 data %>% 
   group_by(suyi) %>% 
   summarise(y = round((sum(homeless)/n())*100,2)) %>% 
-  ggplot(aes(suyi,y, fill = suyi, fill = suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(x = "", y = "Percent", color= "Group") + scale_y_continuous(limits=c(0, 100)) + geom_col() + coord_flip()
+  ggplot(aes(suyi,y, fill = suyi, fill = suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(x = "", y = "Percent", fill= "Group") + scale_y_continuous(limits=c(0, 100)) + geom_col() + coord_flip()
 ```
 
 ---
 
-# Students Attendance 
+# Student Attendance 
 A student is considered "chronically absent" when they miss 15 or more days of instruction in one academic school year. Chronic absenteeism can lead to student's missing important instructional time, ultimately causing students to fall behind in their academics. Furthermore, when students miss school they also miss important social interaction times that develop their interpersonal skills. 
 
 According to this analysis, students in the Youth Initative Zone miss an average of 12 days of instruction. High School students make up for the majority of the days missed, with New Futures Alternative, Cascade High School, and Olympic High School having the highest median of absenteeism. On the other hand, elementary school students account for the least amount of absences. Horizon, Franklin, and Valley Elementary have the lowest amount of students missing school. 
@@ -375,7 +373,7 @@ table <- data %>%
     "Mean" = mean(days_absent),
     "Max" = max(days_absent))
 
-kable(table, caption = "School Absenteeism") 
+kable(table, caption = "School Absenteeism", full_width = F) %>% kable_styling(full_width = F, bootstrap_options = "responsive", position = "left", fixed_thead = T)
 
 data %>% 
   ggplot(aes(reorder(school, days_absent, FUN = median), days_absent)) + geom_boxplot(fill = "grey90") + coord_flip() + labs(x = "School", y = "Days Absent")
@@ -394,7 +392,7 @@ table <- elem %>%
     "Max" = max(days_absent))%>% 
   arrange(desc(Median))
 
-kable(table, caption = "Elementary School Absenteeism") 
+kable(table, caption = "Elementary School Absenteeism") %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
 
 elem %>% 
   ggplot(aes(reorder(school, days_absent, FUN = median), days_absent)) + geom_boxplot(fill = "#4F95DB") + coord_flip() + labs(x = "School", y = "Days Absent")
@@ -412,7 +410,7 @@ table <- middle %>%
     "Max" = max(days_absent))%>% 
   arrange(desc(Median))
 
-kable(table, caption = "Middle School Absenteeism") 
+kable(table, caption = "Middle School Absenteeism") %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
 
 middle %>% 
   ggplot(aes(reorder(school, days_absent, FUN = median), days_absent)) + geom_boxplot(fill = "#DBA14F") + coord_flip() + labs(x = "School", y = "Days Absent")
@@ -430,7 +428,7 @@ table <- hs %>%
     "Max" = max(days_absent)) %>% 
   arrange(desc(Median))
 
-kable(table, caption = "High School Absenteeism") 
+kable(table, caption = "High School Absenteeism") %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
 
 hs %>% 
   ggplot(aes(reorder(school, days_absent, FUN = median), days_absent)) + geom_boxplot(fill = "#2ca25f") + coord_flip() + labs(x = "School", y = "Days Absent")
@@ -439,42 +437,28 @@ hs %>%
 ---
 
 # RIT Scores 
-```{r, eval= FALSE}
-table <- df %>% 
-  group_by("Group" = suyi) %>%
-  summarise(
-    "Mean" = round(mean(fall_math, na.rm = TRUE),2),
-    "Std. Err." = sd(fall_math, na.rm = TRUE)/sqrt(sum(!is.na(fall_math))))
-kable(table, caption = "Fall Math Scores")
-
-df %>% 
-  group_by(suyi) %>% 
-  summarise("mean" = mean(fall_math, na.rm = T)) %>% 
-  ggplot(aes(suyi, mean, fill = suyi)) + scale_fill_manual(values=c("black","#AA0000")) + labs(x = NULL, y = "Average", fill= "Group") + geom_col() + coord_flip() #+ geom_text(aes(label = round(mean,2),y = mean + 0.05), position = position_dodge(0.9), vjust = 0)
+```{r, warning=F}
+#Average Math and Reading RIT by Grade Level 
+df_long %>% 
+  group_by(subject, semester, grade_level) %>% 
+  summarise(y= mean(rit_score, na.rm = T)) %>% 
+  ggplot(aes(semester, y, color = subject, group = subject)) + scale_color_manual(values=c("black", "#AA0000")) + labs(title= "Average Math and Reading RIT Score by Grade Level" ,x = "Semester", y = "Average Score") + geom_point() + geom_line() + facet_wrap(~grade_level)
 ```
 
-```{r, warning=F, eval = FALSE}
+```{r, warning=F}
 #Average RIT Score by Sex
 df_long %>% 
-  ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black", "grey","#AA0000")) + labs(title= "Average RIT Score by Sex" ,x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge")  + scale_y_continuous(breaks = c(0,50,100,150,200,250,300))  + facet_wrap(~sex + suyi)
-```
-
-```{r, warning=F, eval= FALSE}
-#Average RIT Score by Grade Level
-df_long %>% 
-  ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black", "grey","#AA0000")) + labs(title= "Average RIT Score by Grade Level" ,subtitle = "elementary is grades K-5, middle is 6-8, and high school is 9-12", x = "Subject", y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~grade_level, nrow = 3) + scale_y_continuous(breaks = c(150,200,250,300))
+  group_by(subject, semester, sex) %>% 
+  summarise(y= mean(rit_score, na.rm = T)) %>% 
+  ggplot(aes(semester, y, color = subject, group = subject)) + scale_color_manual(values=c("black", "#AA0000")) + labs(title= "Average Math and Reading RIT Score by Grade Level" ,x = "Semester", y = "Average Score") + geom_point() + geom_line() + facet_wrap(~sex)
 ```
 
 ```{r, warning=F}
 #Average RIT Score by Race
 df_long %>% 
-  ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black", "grey","#AA0000")) + labs(title= "Average RIT Score by Race" ,x = NULL, y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~race) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300))
-```
-
-```{r, warning=F}
-#Average RIT Score by Sex
-df_long %>% 
-  ggplot(aes(subject, rit_score, fill= semester)) + scale_fill_manual(values=c("black", "grey","#AA0000")) + labs(title= "Average RIT Score by Sex" ,x = NULL, y = "Average Score", fill= "Group") + geom_col(position = "dodge") + facet_wrap(~sex) + scale_y_continuous(breaks = c(0,50,100,150,200,250,300))
+  group_by(subject, semester, race) %>% 
+  summarise(y= mean(rit_score, na.rm = T)) %>% 
+  ggplot(aes(semester, y, color = subject, group = subject)) + scale_color_manual(values=c("black", "#AA0000")) + labs(title= "Average Math and Reading RIT Score by Race" ,x = "Semester", y = "Average Score") + geom_point() + geom_line() + facet_wrap(~race)
 ```
 
 ```{r, eval= FALSE}
@@ -518,7 +502,7 @@ geom_text(data=elem_mean_reading, color="black", size=2.75, vjust=2.5,
   geom_rect(data=elem_mean_reading, aes(xmin=230, xmax=250, ymin=-Inf, ymax=Inf), fill="grey90") +
 geom_text(data=elem_mean_reading, aes(label=paste0(round(mean_reading_diff,2)), y=school, x=240), fontface="bold", size=3) +
 geom_text(data= filter(elem_mean_reading, school == "Valley Elementary"), 
-            aes(x=240, y=school, label="Difference"),
+            aes(x=240, y=school, label="Grwoth Index"),
             color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(150, 250)) + scale_y_discrete(expand=c(0.2,0))
 ```
  
@@ -542,14 +526,14 @@ ggplot(middle_mean_reading, aes(x=mean_fall_reading, xend=mean_spring_reading, y
           color="black", size=2.75, vjust=-2.5, position = position_dodge(width = .5)) +
 geom_text(data=filter(middle_mean_reading, school == "Sound View Middle School"), color="#AA0000", size=2.75, vjust=-2.5,
           aes(x=mean_spring_reading, y=school, label="Spring"), position = position_dodge(width = 2)) +
-  geom_text(data=middle_mean_reading, aes(x=mean_fall_reading, y=school, label=round(mean_fall_reading,2)),
+  geom_text_repel(data=middle_mean_reading, aes(x=mean_fall_reading, y=school, label=round(mean_fall_reading,2)),
           color="black", size=2.75, vjust=2.5, position = position_dodge(width = .5)) +
-geom_text(data=middle_mean_reading, color="black", size=2.75, vjust=-1,
-          aes(x=mean_spring_reading, y=school, label=round(mean_spring_reading,2)), position = position_dodge(width = 5)) +
+geom_text_repel(data=middle_mean_reading, color="black", size=2.75, vjust=-1,
+          aes(x=mean_spring_reading, y=school, label=round(mean_spring_reading,2))) +
   geom_rect(data=middle_mean_reading, aes(xmin=230, xmax=250, ymin=-Inf, ymax=Inf), fill="grey90") +
 geom_text(data=middle_mean_reading, aes(label=paste0(round(mean_reading_diff,2)), y=school, x=240), fontface="bold", size=3) +
 geom_text(data= filter(middle_mean_reading, school == "Sound View Middle School"), 
-            aes(x=240, y=school, label="Difference"),
+            aes(x=240, y=school, label="Grwoth Index"),
             color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(150, 250)) + scale_y_discrete(expand=c(0.2,0))
 ```
  
@@ -580,7 +564,7 @@ geom_text(data=hs_mean_reading, color="black", size=2.75, vjust=-1,
   geom_rect(data=hs_mean_reading, aes(xmin=230, xmax=250, ymin=-Inf, ymax=Inf), fill="grey90") +
 geom_text(data=hs_mean_reading, aes(label=paste0(round(mean_reading_diff,2)), y=school, x=240), fontface="bold", size=3) +
 geom_text(data= filter(hs_mean_reading, school == "Olympic High School"), 
-            aes(x=240, y=school, label="Difference"),
+            aes(x=240, y=school, label="Grwoth Index"),
             color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(150, 250)) + scale_y_discrete(expand=c(0.2,0))
 ```
  
@@ -588,7 +572,6 @@ geom_text(data= filter(hs_mean_reading, school == "Olympic High School"),
  
  
 -Make tables to accompany each graph made 
-- Find out what the national rit score is and then graph a line on the graph showing where SUYI fall within that range
 - Write up a summary of the findings 
 
 
