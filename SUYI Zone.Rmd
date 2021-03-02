@@ -471,12 +471,12 @@ middle_mean_math$school <- fct_reorder(middle_mean_math$school, middle_mean_math
 hs_mean_math$school <- fct_reorder(hs_mean_math$school, hs_mean_math$mean_math_diff, max)
 ```
  
- # Average RIT Elementary Schools 
+ # Average RIT Elementary Schools Scored From Fall to Spring
  
 ```{r, warning = FALSE}
 # Elementary Reading Dumbbell Plot 
 ggplot(elem_mean_reading, aes(x=mean_fall_reading, xend=mean_spring_reading, y=school)) + geom_segment(aes(x=150, 
-                         xend=200, 
+                         xend=250, 
                          y=school, 
                          yend=school), 
                      color="grey90", size=1)+
@@ -486,7 +486,7 @@ ggplot(elem_mean_reading, aes(x=mean_fall_reading, xend=mean_spring_reading, y=s
                       colour_x="black", 
                       colour_xend = "#AA0000")+
         labs(x="Reading Score", y="School", 
-             title="Fall to Spring Average RIT Reading Scores", 
+             title="Elementary Fall to Spring Average RIT Reading Scores", 
              caption="2014 School year") +
     geom_text(data=filter(elem_mean_reading, school == "Valley Elementary"), aes(x=mean_fall_reading, y=school, label="Fall"),
           color="black", size=2.75, vjust=-2.5, position = position_dodge(width = 2)) +
@@ -496,11 +496,11 @@ geom_text(data=filter(elem_mean_reading, school == "Valley Elementary"), color="
           color="black", size=2.75, vjust=2.5, position = position_dodge(width = 2)) +
 geom_text(data=elem_mean_reading, color="black", size=2.75, vjust=2.5,
           aes(x=mean_spring_reading, y=school, label=round(mean_spring_reading,2)), position = position_dodge(width = 2)) +
-  geom_rect(data=elem_mean_reading, aes(xmin=193, xmax=200, ymin=-Inf, ymax=Inf), fill="grey90") +
-geom_text(data=elem_mean_reading, aes(label=paste0(round(mean_reading_diff,2)), y=school, x=195), fontface="bold", size=3) +
+  geom_rect(data=elem_mean_reading, aes(xmin=230, xmax=250, ymin=-Inf, ymax=Inf), fill="grey90") +
+geom_text(data=elem_mean_reading, aes(label=paste0(round(mean_reading_diff,2)), y=school, x=240), fontface="bold", size=3) +
 geom_text(data= filter(elem_mean_reading, school == "Valley Elementary"), 
-            aes(x=195.5, y=school, label="Difference"),
-            color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(150, 200)) + scale_y_discrete(expand=c(0.2,0))
+            aes(x=240, y=school, label="Difference"),
+            color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(150, 250)) + scale_y_discrete(expand=c(0.2,0))
 ```
  
 ```{r}
@@ -516,7 +516,7 @@ ggplot(middle_mean_reading, aes(x=mean_fall_reading, xend=mean_spring_reading, y
                       colour_x="black", 
                       colour_xend = "#AA0000")+
         labs(x="Reading Score", y="School", 
-             title="Fall to Spring Average RIT Reading Scores", 
+             title="Middle School Fall to Spring Average RIT Reading Scores", 
              caption="2014 School year") +
     geom_text(data=filter(middle_mean_reading, school == "Sound View Middle School"), aes(x=mean_fall_reading, y=school, label="Fall"),
           color="black", size=2.75, vjust=-2.5, position = position_dodge(width = .5)) +
@@ -524,7 +524,7 @@ geom_text(data=filter(middle_mean_reading, school == "Sound View Middle School")
           aes(x=mean_spring_reading, y=school, label="Spring"), position = position_dodge(width = 2)) +
   geom_text(data=middle_mean_reading, aes(x=mean_fall_reading, y=school, label=round(mean_fall_reading,2)),
           color="black", size=2.75, vjust=2.5, position = position_dodge(width = .5)) +
-geom_text(data=middle_mean_reading, color="black", size=2.75, vjust=2.5,
+geom_text(data=middle_mean_reading, color="black", size=2.75, vjust=-1,
           aes(x=mean_spring_reading, y=school, label=round(mean_spring_reading,2)), position = position_dodge(width = 5)) +
   geom_rect(data=middle_mean_reading, aes(xmin=230, xmax=250, ymin=-Inf, ymax=Inf), fill="grey90") +
 geom_text(data=middle_mean_reading, aes(label=paste0(round(mean_reading_diff,2)), y=school, x=240), fontface="bold", size=3) +
@@ -534,12 +534,39 @@ geom_text(data= filter(middle_mean_reading, school == "Sound View Middle School"
 ```
  
  
+```{r}
+#High School Reading Dumbbell Plot 
+ggplot(hs_mean_reading, aes(x=mean_fall_reading, xend=mean_spring_reading, y=school)) + geom_segment(aes(x=150, 
+                         xend=250, 
+                         y=school, 
+                         yend=school), 
+                     color="grey90", size=1)+
+        geom_dumbbell(color="black", 
+                      size_x=3.5, 
+                      size_xend = 3.5,
+                      colour_x="black", 
+                      colour_xend = "#AA0000")+
+        labs(x="Reading Score", y="School", 
+             title="High School Fall to Spring Average RIT Reading Scores", 
+             caption="2014 School year") +
+    geom_text(data=filter(hs_mean_reading, school == "Olympic High School"), aes(x=mean_fall_reading, y=school, label="Fall"),
+          color="black", size=2.75, vjust=-2.5, position = position_dodge(width = 2)) +
+geom_text(data=filter(hs_mean_reading, school == "Olympic High School"), color="#AA0000", size=2.75, vjust=-2.5,
+          aes(x=mean_spring_reading, y=school, label="Spring"), position = position_dodge(width = 2)) +
+  geom_text(data=hs_mean_reading, aes(x=mean_fall_reading, y=school, label=round(mean_fall_reading,2)),
+          color="black", size=2.75, vjust=2.5, position = position_dodge(width=.5)) +
+geom_text(data=hs_mean_reading, color="black", size=2.75, vjust=-1,
+          aes(x=mean_spring_reading, y=school, label=round(mean_spring_reading,2)), position = position_dodge(width=1)) +
+  geom_rect(data=hs_mean_reading, aes(xmin=230, xmax=250, ymin=-Inf, ymax=Inf), fill="grey90") +
+geom_text(data=hs_mean_reading, aes(label=paste0(round(mean_reading_diff,2)), y=school, x=240), fontface="bold", size=3) +
+geom_text(data= filter(hs_mean_reading, school == "Olympic High School"), 
+            aes(x=240, y=school, label="Difference"),
+            color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(150, 250)) + scale_y_discrete(expand=c(0.2,0))
+```
  
  
  
  
- 
--Create a t-test to determine if being in the youth program affects students test scores versus those who are not in the program 
 -Make tables to accompany each graph made 
 - Find out what the national rit score is and then graph a line on the graph showing where SUYI fall within that range
 - Write up a summary of the findings 
