@@ -1,12 +1,13 @@
 ---
 title: 'Seattle University: Center for Community Engagement'
 author: 'Prepared by: James Lamar Foster'
+date: "`r format(Sys.time(), '%B %d, %Y')`"
 subtitle: Senior Data and Evaluation Analyst Interview
 output:
   html_document:
-    df_print: paged
-  word_document:
-    reference_docx: SeattleU_Template.docx
+  toc: true
+  toc_depth: 2
+  theme: united
 ---
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -212,6 +213,32 @@ hs_mean_math$school <- fct_reorder(hs_mean_math$school, hs_mean_math$mean_math_d
 
 ---
 
+# Key Takeaways 
+
+1. Youth Initiative Zone students make steady gains in reading and math in elementary and middle school but tend to regress in high school. 
+
+2. On average, Youth Initiative Zone students miss 12 days of instruction. Most of the absenteeism is occurring at the high school level.
+
+3. Declines in reading and math were seen most clearly amongst Alaska Native, Cambodian, Asian Indian, and Korean students.
+
+# Summary of Findings
+
+The Seattle University Youth Initiative Zone (SUYI) is comprised of 881 students across 16 schools consisting of elementary, middle, and high school students. SUYI is rich in diversity; there are 13 different races/ethnicities, over 10 primary languages, and a host of other characteristics that make this a rich community of students. Despite this richness, many SUYI students struggle with absenteeism and declining MAP Growth Rasch UnIT (RIT) scores. 
+
+A student is considered "chronically absent" when they miss 10% or more days of instruction in one academic school year (Childs & Lofton, 2021). Chronic absenteeism can lead to students missing important instructional time, ultimately causing students to fall behind in their academics. Furthermore, when students miss school, they also miss important social interaction times that develop their interpersonal skills. According to this analysis, SUYI students miss an average of 12 days of instruction, which is about 7% of the school year in Washington state. High School students make up for the majority of the days missed, with New Futures Alternative, Cascade High School, and Olympic High School having the highest median of absenteeism (20-48 missed days). On the other hand, elementary school students account for the least amount of absences. Horizon, Franklin, and Valley Elementary have the lowest amount of students missing school (4-6 missed days). 
+
+RIT scores range from about 100–300. According to Joi Converse (2016), third-grade students usually score at the 180–200 level and progress to the 220–260 level by high school. SUYI elementary students fall within the usual RIT score range and make considerable gains in middle school. However, gains begin to slow down and in some cases regress for high school students. Declines in math RIT scores occurred from fall to winter for high school students, particularly male students of color. Most of these declines may be coming from Cascade High School and New Futures Alternative. 
+
+Based on this analysis, more attention needs to be given to male high school students of color with a primary focus on their math achievement. However, that achievement may not improve if high school students continue to miss school. Further analysis should be done to measure the statistical significance of students missing school on their academic achievement. Lastly, caution should be taken with how much emphasis is given to RIT scores, given historical 
+    
+
+### References: 
+
+Childs, J., & Lofton, R. (2021). Masking attendance: How education policy distracts from the wicked problem (s) of chronic absenteeism. Educational Policy, 35(2), 213-234.
+
+https://www.nwea.org/blog/2016/six-commonly-used-map-growth-terms-worth-knowing/
+
+
 # Youth Initiative Zone Schools and Students
 
 ```{r}
@@ -360,10 +387,7 @@ waffle(homeless, rows=5, size=0.5,
 
 ---
 
-# Student Attendance 
-A student is considered "chronically absent" when they miss 15 or more days of instruction in one academic school year. Chronic absenteeism can lead to student's missing important instructional time, ultimately causing students to fall behind in their academics. Furthermore, when students miss school they also miss important social interaction times that develop their interpersonal skills. 
-
-According to this analysis, students in the Youth Initative Zone miss an average of 12 days of instruction. High School students make up for the majority of the days missed, with New Futures Alternative, Cascade High School, and Olympic High School having the highest median of absenteeism. On the other hand, elementary school students account for the least amount of absences. Horizon, Franklin, and Valley Elementary have the lowest amount of students missing school. 
+# Student Absenteeism  
 
 ```{r}
 table <- data %>% 
@@ -436,7 +460,7 @@ hs %>%
 
 ---
 
-# RIT Scores 
+# MAP Growth Rasch UnIT (RIT) Scores 
 ```{r, warning=F}
 #Average Math and Reading RIT by Grade Level 
 df_long %>% 
@@ -502,7 +526,7 @@ geom_text(data=elem_mean_reading, color="black", size=2.75, vjust=2.5,
   geom_rect(data=elem_mean_reading, aes(xmin=230, xmax=250, ymin=-Inf, ymax=Inf), fill="grey90") +
 geom_text(data=elem_mean_reading, aes(label=paste0(round(mean_reading_diff,2)), y=school, x=240), fontface="bold", size=3) +
 geom_text(data= filter(elem_mean_reading, school == "Valley Elementary"), 
-            aes(x=240, y=school, label="Grwoth Index"),
+            aes(x=240, y=school, label="Growth Index"),
             color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(150, 250)) + scale_y_discrete(expand=c(0.2,0))
 ```
  
@@ -533,7 +557,7 @@ geom_text_repel(data=middle_mean_reading, color="black", size=2.75, vjust=-1,
   geom_rect(data=middle_mean_reading, aes(xmin=230, xmax=250, ymin=-Inf, ymax=Inf), fill="grey90") +
 geom_text(data=middle_mean_reading, aes(label=paste0(round(mean_reading_diff,2)), y=school, x=240), fontface="bold", size=3) +
 geom_text(data= filter(middle_mean_reading, school == "Sound View Middle School"), 
-            aes(x=240, y=school, label="Grwoth Index"),
+            aes(x=240, y=school, label="Growth Index"),
             color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(150, 250)) + scale_y_discrete(expand=c(0.2,0))
 ```
  
@@ -564,14 +588,104 @@ geom_text(data=hs_mean_reading, color="black", size=2.75, vjust=-1,
   geom_rect(data=hs_mean_reading, aes(xmin=230, xmax=250, ymin=-Inf, ymax=Inf), fill="grey90") +
 geom_text(data=hs_mean_reading, aes(label=paste0(round(mean_reading_diff,2)), y=school, x=240), fontface="bold", size=3) +
 geom_text(data= filter(hs_mean_reading, school == "Olympic High School"), 
-            aes(x=240, y=school, label="Grwoth Index"),
+            aes(x=240, y=school, label="Growth Index"),
+            color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(150, 250)) + scale_y_discrete(expand=c(0.2,0))
+```
+
+
+## Math
+
+### Elementary Schools
+```{r, warning = FALSE}
+# Elementary Math Dumbbell Plot 
+ggplot(elem_mean_math, aes(x=mean_fall_math, xend=mean_spring_math, y=school)) + geom_segment(aes(x=150, 
+                         xend=250, 
+                         y=school, 
+                         yend=school), 
+                     color="grey90", size=1)+
+        geom_dumbbell(color="black", 
+                      size_x=3.5, 
+                      size_xend = 3.5,
+                      colour_x="black", 
+                      colour_xend = "#AA0000")+
+        labs(x="Math Score", y="School", 
+             title="Elementary Fall to Spring Average RIT Math Scores", 
+             caption="2014 School year") +
+    geom_text(data=filter(elem_mean_math, school == "Lincoln Elementary"), aes(x=mean_fall_math, y=school, label="Fall"),
+          color="black", size=2.75, vjust=-2.5, position = position_dodge(width = 2)) +
+geom_text(data=filter(elem_mean_math, school == "Lincoln Elementary"), color="#AA0000", size=2.75, vjust=-2.5,
+          aes(x=mean_spring_math, y=school, label="Spring"), position = position_dodge(width = 2)) +
+  geom_text(data=elem_mean_math, aes(x=mean_fall_math, y=school, label=round(mean_fall_math,2)),
+          color="black", size=2.75, vjust=2.5, position = position_dodge(width = 2)) +
+geom_text(data=elem_mean_math, color="black", size=2.75, vjust=2.5,
+          aes(x=mean_spring_math, y=school, label=round(mean_spring_math,2)), position = position_dodge(width = 2)) +
+  geom_rect(data=elem_mean_math, aes(xmin=230, xmax=250, ymin=-Inf, ymax=Inf), fill="grey90") +
+geom_text(data=elem_mean_math, aes(label=paste0(round(mean_math_diff,2)), y=school, x=240), fontface="bold", size=3) +
+geom_text(data= filter(elem_mean_math, school == "Lincoln Elementary"), 
+            aes(x=240, y=school, label="Growth Index"),
             color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(150, 250)) + scale_y_discrete(expand=c(0.2,0))
 ```
  
+### Middle Schools
+```{r, warning = FALSE}
+#Middle Math Dumbbell Plot 
+ggplot(middle_mean_math, aes(x=mean_fall_math, xend=mean_spring_math, y=school)) + geom_segment(aes(x=175, 
+                         xend=275, 
+                         y=school, 
+                         yend=school), 
+                     color="grey90", size=1)+
+        geom_dumbbell(color="black", 
+                      size_x=3.5, 
+                      size_xend = 3.5,
+                      colour_x="black", 
+                      colour_xend = "#AA0000")+
+        labs(x="Math Score", y="School", 
+             title="Middle School Fall to Spring Average RIT Math Scores", 
+             caption="2014 School year") +
+    geom_text(data=filter(middle_mean_math, school == "Union Middle School"), aes(x=mean_fall_math, y=school, label="Fall"),
+          color="black", size=2.75, vjust=-2.5, position = position_dodge(width = 2)) +
+geom_text(data=filter(middle_mean_math, school == "Union Middle School"), color="#AA0000", size=2.75, vjust=-2.5,
+          aes(x=mean_spring_math, y=school, label="Spring"), position = position_dodge(width = 2)) +
+  geom_text_repel(data=middle_mean_math, aes(x=mean_fall_math, y=school, label=round(mean_fall_math,2)),
+          color="black", size=2.75, vjust=2.5, position = position_dodge(width = 2)) +
+geom_text_repel(data=middle_mean_math, color="black", size=2.75, vjust=-1,
+          aes(x=mean_spring_math, y=school, label=round(mean_spring_math,2)), position = position_dodge(width = 2)) +
+  geom_rect(data=middle_mean_math, aes(xmin=250, xmax=275, ymin=-Inf, ymax=Inf), fill="grey90") +
+geom_text(data=middle_mean_math, aes(label=paste0(round(mean_math_diff,2)), y=school, x=260), fontface="bold", size=3) +
+geom_text(data= filter(middle_mean_math, school == "Union Middle School"), 
+            aes(x=260, y=school, label="Growth Index"),
+            color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(175, 275)) + scale_y_discrete(expand=c(0.2,0))
+```
  
- 
- 
--Make tables to accompany each graph made 
-- Write up a summary of the findings 
+### High Schools 
+```{r}
+#High School Math Dumbbell Plot 
+ggplot(hs_mean_math, aes(x=mean_fall_math, xend=mean_spring_math, y=school)) + geom_segment(aes(x=175, 
+                         xend=275, 
+                         y=school, 
+                         yend=school), 
+                     color="grey90", size=1)+
+        geom_dumbbell(color="black", 
+                      size_x=3.5, 
+                      size_xend = 3.5,
+                      colour_x="black", 
+                      colour_xend = "#AA0000")+
+        labs(x="Math Score", y="School", 
+             title="High School Fall to Spring Average RIT Math Scores", 
+             caption="2014 School year") +
+    geom_text(data=filter(hs_mean_math, school == "Olympic High School"), aes(x=mean_fall_math, y=school, label="Fall"),
+          color="black", size=2.75, vjust=-2.5, position = position_dodge(width = 2)) +
+geom_text(data=filter(hs_mean_math, school == "Olympic High School"), color="#AA0000", size=2.75, vjust=-2.5,
+          aes(x=mean_spring_math, y=school, label="Spring"), position = position_dodge(width = 2)) +
+  geom_text(data=hs_mean_math, aes(x=mean_fall_math, y=school, label=round(mean_fall_math,2)),
+          color="black", size=2.75, vjust=2.5, position = position_dodge(width=.5)) +
+geom_text(data=hs_mean_math, color="black", size=2.75, vjust=-1,
+          aes(x=mean_spring_math, y=school, label=round(mean_spring_math,2)), position = position_dodge(width=1)) +
+  geom_rect(data=hs_mean_math, aes(xmin=250, xmax=275, ymin=-Inf, ymax=Inf), fill="grey90") +
+geom_text(data=hs_mean_math, aes(label=paste0(round(mean_math_diff,2)), y=school, x=260), fontface="bold", size=3) +
+geom_text(data= filter(hs_mean_math, school == "Olympic High School"), 
+            aes(x=260, y=school, label="Growth Index"),
+            color="black", size=3.1, vjust=-3, fontface="bold") + scale_x_continuous(expand=c(0,0), limits=c(175, 275)) + scale_y_discrete(expand=c(0.2,0))
+```
 
 
