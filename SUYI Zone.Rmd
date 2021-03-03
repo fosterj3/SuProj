@@ -1,7 +1,7 @@
 --- 
 title: 'Seattle University Youth Initiative Zone'
 subtitle: "Center for Community Engagement"
-author: 'Prepared by: James Lamar Foster, Ph.C.'
+author: 'James Lamar Foster, Ph.D. Candidate'
 date: "March 4, 2021"
 output:
     rmdformats::readthedown
@@ -228,7 +228,7 @@ bilingual <- c(Bilingual = 34, Monolingual= 66)
 
 The Seattle University Youth Initiative Zone (SUYI) is comprised of 881 students across 16 schools consisting of elementary, middle, and high school students. SUYI is rich in diversity; there are 13 different races/ethnicities, over 10 primary languages, and a host of other characteristics that make this a rich community of students. Unfortunately, many SUYI students struggle with absenteeism and declining MAP Growth Rasch UnIT (RIT) scores. 
 
-A student is considered "chronically absent" when they miss 10% or more days of instruction in one academic school year (Childs & Lofton, 2021). Chronic absenteeism can lead to students missing important instructional time, ultimately causing students to fall behind in their academics. Furthermore, when students miss school, they also miss important social interaction times that develop their interpersonal skills. According to this analysis, SUYI students miss an average of 12 days of instruction, which is about 7% of the school year in Washington state. High School students make up for the majority of the days missed, with New Futures Alternative, Cascade High School, and Olympic High School having the highest median of absenteeism (20-48 missed days). On the other hand, elementary school students account for the least amount of absences. Horizon, Franklin, and Valley Elementary have the lowest amount of students missing school (4-6 missed days). 
+A student is considered "chronically absent" when they miss 10% or more days of instruction in one academic school year (Childs & Lofton, 2021). Chronic absenteeism can lead to students missing important instructional time, ultimately causing students to fall behind in their academics. Furthermore, when students miss school, they also miss important social interaction times that develop their interpersonal skills. According to this analysis, SUYI students miss an average of 12 days of instruction, which is about 7% of the school year in Washington State. High School students make up for the majority of the days missed, with New Futures Alternative, Cascade High School, and Olympic High School having the highest median of absenteeism (20-48 missed days). On the other hand, elementary school students account for the least amount of absences. Horizon, Franklin, and Valley Elementary have the lowest amount of students missing school (4-6 missed days). 
 
 RIT scores range from about 100–300. According to Joi Converse (2016), third-grade students usually score at the 180–200 level and progress to the 220–260 level by high school. SUYI elementary students fall within the usual RIT score range and make considerable gains in middle school. However, gains begin to slow down and in some cases regress for high school students. Declines in math RIT scores occurred from fall to winter for high school students, particularly male students of color. Most of these declines may be coming from Cascade High School and New Futures Alternative. In terms of actual scores, the average high school reading and math score was below 220. More specifically, the average spring RIT score in math was below 220.  
 
@@ -239,7 +239,7 @@ Based on this analysis, more attention needs to be given to male high school stu
 
 Childs, J., & Lofton, R. (2021). Masking attendance: How education policy distracts from the wicked problem (s) of chronic absenteeism. Educational Policy, 35(2), 213-234.
 
-https://www.nwea.org/blog/2016/six-commonly-used-map-growth-terms-worth-knowing/
+Converse, J. (2016, October 25). Six commonly used MAP Growth terms worth knowing. NWEA. https://www.nwea.org/blog/2016/six-commonly-used-map-growth-terms-worth-knowing/
 
 
 # SUYI Schools and Students
@@ -255,7 +255,7 @@ table <- data %>%
   adorn_ns() 
 
 
-kable(table, caption= "Total Number of Students in the Seattle University Youth Initiative Zone", col.names = c("School Name", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
+kable(table, caption= "Total Number of Students in the Seattle University Youth Initiative Zone", col.names = c("School Name", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T) %>% row_spec(c(17), bold = T)
 
 
 
@@ -269,7 +269,7 @@ table <- elem %>%
   adorn_ns() 
 
 
-kable(table, caption= "Elementary Schools (K-5)", col.names = c("School Name", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
+kable(table, caption= "Elementary Schools (K-5)", col.names = c("School Name", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T) %>% row_spec(c(9), bold = T)
 
 
 table <- middle %>%
@@ -282,7 +282,7 @@ table <- middle %>%
   adorn_ns() 
 
 
-kable(table, caption= "Middle Schools (6-8)", col.names = c("School Name", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
+kable(table, caption= "Middle Schools (6-8)", col.names = c("School Name", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T) %>% row_spec(c(7), bold = T)
 
 table <- hs %>%
   group_by(School = school) %>%
@@ -294,7 +294,7 @@ table <- hs %>%
   adorn_ns() 
 
 
-kable(table, caption= "High Schools (9-12)", col.names = c("School Name", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
+kable(table, caption= "High Schools (9-12)", col.names = c("School Name", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T) %>% row_spec(c(6), bold = T)
 
 
 data %>%
@@ -302,7 +302,7 @@ data %>%
   summarise("Total" = n()) %>% 
   ggplot(aes(school, Total,group= school)) +
   geom_col(aes(x= reorder(school, Total)), fill = "#AA0000") +
-  scale_y_continuous(breaks = c(0,25,50,75,100,125,150, 175)) +
+  scale_y_continuous(breaks = c(0,25,50,75,100,125,150,175)) +
   labs(x = "School", 
        y = "Number of Students") + coord_flip() + theme(legend.position = "none")
 ```
@@ -348,11 +348,11 @@ table <- data %>%
   adorn_pct_formatting() %>%
   adorn_ns()
 
-kable(table, caption = "Student's Primary Language", col.names = c("Primary Language", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
+kable(table, caption = "Student's Primary Language (Ten most spoken)", col.names = c("Primary Language", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
 
 data %>% 
   filter(primary_language != "English") %>% 
-ggplot(aes(x= reorder(primary_language, primary_language,function(x)length(x)))) + geom_bar(position = "dodge", fill = "#AA0000") + scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip() + labs(x= "Primary Language")
+ggplot(aes(x= reorder(primary_language, primary_language,function(x)length(x)))) + geom_bar(position = "dodge", fill = "#AA0000") + scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip() + labs(x= "Primary Language") + scale_y_continuous(breaks = c(0, 25, 50, 75, 100, 125, 150))
 ```
 
 ```{r}
@@ -482,7 +482,7 @@ df_long %>%
 df_long %>% 
   group_by(subject, semester, race) %>% 
   summarise(y= mean(rit_score, na.rm = T)) %>% 
-  ggplot(aes(semester, y, color = subject, group = subject)) + scale_color_manual(values=c("black", "#AA0000")) + labs(title= "Average Math and Reading RIT Score by Race" ,x = "Semester", y = "Average Score") + geom_point() + geom_line() + facet_wrap(~race)
+  ggplot(aes(semester, y, color = subject, group = subject)) + scale_color_manual(values=c("black", "#AA0000")) + labs(title= "Average Math and Reading RIT Score by Race", caption = "n < 5 for Japanese, Alaska Native, Asian Indian, Korean, Samoan, and Cambodian", x = "Semester", y = "Average Score") + geom_point() + geom_line() + facet_wrap(~race)
 ```
 
 ```{r, eval= FALSE}
