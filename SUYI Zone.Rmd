@@ -1,11 +1,15 @@
----
+--- 
 title: 'Seattle University: Youth Initiative Zone'
-subtitle: 'Center for Community Engagement'
-author: 'Prepared by: James Lamar Foster'
-date: "`r format(Sys.time(), '%B %d, %Y')`"
+subtitle: "Center for Community Engagement"
+author: 'Prepared by: James Lamar Foster, Ph.C.'
+date: "March 4, 2021"
 output:
-  html_document
----
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    theme: united
+--- 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #clear memory
@@ -232,7 +236,7 @@ A student is considered "chronically absent" when they miss 10% or more days of 
 
 RIT scores range from about 100–300. According to Joi Converse (2016), third-grade students usually score at the 180–200 level and progress to the 220–260 level by high school. SUYI elementary students fall within the usual RIT score range and make considerable gains in middle school. However, gains begin to slow down and in some cases regress for high school students. Declines in math RIT scores occurred from fall to winter for high school students, particularly male students of color. Most of these declines may be coming from Cascade High School and New Futures Alternative. In terms of actual scores, the average high school reading and math score was below 220. More specifically, the average spring RIT score in math was below 220.  
 
-Based on this analysis, more attention needs to be given to male high school students of color with a primary focus on their math achievement. However, that achievement may not improve if high school students continue to miss school. Further analysis should be done to measure the statistical significance of students missing school on their academic achievement and the characteristics of students who are missing school and performing low in math. Lastly, caution should be taken with how much emphasis is given to RIT scores. Several scholars have noted inherent bias and cultural awareness in standardized tests. 
+Based on this analysis, more attention needs to be given to male high school students of color with a primary focus on their math achievement. However, that achievement may not improve if high school students continue to miss school. Further analysis should be done to measure the statistical significance of students missing school on their academic achievement and the characteristics of students who are missing school and performing low in math. Lastly, caution should be taken with how much emphasis is given to RIT scores. Several scholars have noted inherent bias and lack of cultural awareness in standardized tests. 
     
 
 #### References: 
