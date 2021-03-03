@@ -4,11 +4,7 @@ subtitle: "Center for Community Engagement"
 author: 'Prepared by: James Lamar Foster, Ph.C.'
 date: "March 4, 2021"
 output:
-  html_document:
-    toc: true
-    toc_depth: 2
-    toc_float: true
-    theme: united
+    rmdformats::readthedown
 --- 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
