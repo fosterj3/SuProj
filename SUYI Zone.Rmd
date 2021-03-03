@@ -1,13 +1,10 @@
 ---
-title: 'Seattle University: Center for Community Engagement'
+title: 'Seattle University: Youth Initiative Zone'
+subtitle: 'Center for Community Engagement'
 author: 'Prepared by: James Lamar Foster'
 date: "`r format(Sys.time(), '%B %d, %Y')`"
-subtitle: Senior Data and Evaluation Analyst Interview
 output:
-  html_document:
-  toc: true
-  toc_depth: 2
-  theme: united
+  html_document
 ---
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -55,7 +52,7 @@ library(waffle)
 
 ```{r set_knitr_chunk_options, echo=FALSE, message=FALSE}
 #set global output chunk options
-knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, collapse=FALSE, highlight= FALSE, results='asis', fig.height = 4, fig.width = 7,  fig.align = "left")
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, collapse = F, highlight = F, results = "asis")
 ```
 
 ```{r, message = F, warning=FALSE}
@@ -211,6 +208,12 @@ middle_mean_math$school <- fct_reorder(middle_mean_math$school, middle_mean_math
 hs_mean_math$school <- fct_reorder(hs_mean_math$school, hs_mean_math$mean_math_diff, max)
 ```
 
+```{r}
+#For waffle plot
+homeless <- c(Homeless = 7, `Not Homeless`= 93)
+bilingual <- c(Bilingual = 34, Monolingual= 66)
+```
+
 ---
 
 # Key Takeaways 
@@ -219,27 +222,27 @@ hs_mean_math$school <- fct_reorder(hs_mean_math$school, hs_mean_math$mean_math_d
 
 2. On average, Youth Initiative Zone students miss 12 days of instruction. Most of the absenteeism is occurring at the high school level.
 
-3. Declines in reading and math were seen most clearly amongst Alaska Native, Cambodian, Asian Indian, and Korean students.
+3. Male students of color in high school are experiencing the lowest amount of RIT math growth.
 
 # Summary of Findings
 
-The Seattle University Youth Initiative Zone (SUYI) is comprised of 881 students across 16 schools consisting of elementary, middle, and high school students. SUYI is rich in diversity; there are 13 different races/ethnicities, over 10 primary languages, and a host of other characteristics that make this a rich community of students. Despite this richness, many SUYI students struggle with absenteeism and declining MAP Growth Rasch UnIT (RIT) scores. 
+The Seattle University Youth Initiative Zone (SUYI) is comprised of 881 students across 16 schools consisting of elementary, middle, and high school students. SUYI is rich in diversity; there are 13 different races/ethnicities, over 10 primary languages, and a host of other characteristics that make this a rich community of students. Unfortunately, many SUYI students struggle with absenteeism and declining MAP Growth Rasch UnIT (RIT) scores. 
 
 A student is considered "chronically absent" when they miss 10% or more days of instruction in one academic school year (Childs & Lofton, 2021). Chronic absenteeism can lead to students missing important instructional time, ultimately causing students to fall behind in their academics. Furthermore, when students miss school, they also miss important social interaction times that develop their interpersonal skills. According to this analysis, SUYI students miss an average of 12 days of instruction, which is about 7% of the school year in Washington state. High School students make up for the majority of the days missed, with New Futures Alternative, Cascade High School, and Olympic High School having the highest median of absenteeism (20-48 missed days). On the other hand, elementary school students account for the least amount of absences. Horizon, Franklin, and Valley Elementary have the lowest amount of students missing school (4-6 missed days). 
 
-RIT scores range from about 100–300. According to Joi Converse (2016), third-grade students usually score at the 180–200 level and progress to the 220–260 level by high school. SUYI elementary students fall within the usual RIT score range and make considerable gains in middle school. However, gains begin to slow down and in some cases regress for high school students. Declines in math RIT scores occurred from fall to winter for high school students, particularly male students of color. Most of these declines may be coming from Cascade High School and New Futures Alternative. 
+RIT scores range from about 100–300. According to Joi Converse (2016), third-grade students usually score at the 180–200 level and progress to the 220–260 level by high school. SUYI elementary students fall within the usual RIT score range and make considerable gains in middle school. However, gains begin to slow down and in some cases regress for high school students. Declines in math RIT scores occurred from fall to winter for high school students, particularly male students of color. Most of these declines may be coming from Cascade High School and New Futures Alternative. In terms of actual scores, the average high school reading and math score was below 220. More specifically, the average spring RIT score in math was below 220.  
 
-Based on this analysis, more attention needs to be given to male high school students of color with a primary focus on their math achievement. However, that achievement may not improve if high school students continue to miss school. Further analysis should be done to measure the statistical significance of students missing school on their academic achievement. Lastly, caution should be taken with how much emphasis is given to RIT scores, given historical 
+Based on this analysis, more attention needs to be given to male high school students of color with a primary focus on their math achievement. However, that achievement may not improve if high school students continue to miss school. Further analysis should be done to measure the statistical significance of students missing school on their academic achievement and the characteristics of students who are missing school and performing low in math. Lastly, caution should be taken with how much emphasis is given to RIT scores. Several scholars have noted inherent bias and cultural awareness in standardized tests. 
     
 
-### References: 
+#### References: 
 
 Childs, J., & Lofton, R. (2021). Masking attendance: How education policy distracts from the wicked problem (s) of chronic absenteeism. Educational Policy, 35(2), 213-234.
 
 https://www.nwea.org/blog/2016/six-commonly-used-map-growth-terms-worth-knowing/
 
 
-# Youth Initiative Zone Schools and Students
+# SUYI Schools and Students
 
 ```{r}
 table <- data %>%
@@ -304,7 +307,7 @@ data %>%
        y = "Number of Students") + coord_flip() + theme(legend.position = "none")
 ```
 
-# Youth Initiative Zone Student Demographics 
+# SUYI Student Demographics 
 
 ```{r}
 # Student's Sex
@@ -361,8 +364,6 @@ table <- data %>%
 
 kable(table, caption = "Bilingual Students", col.names = c("Total", "Percent"), full_width = F) %>% kable_styling(full_width = F, bootstrap_options = "responsive", position = "left", fixed_thead = T)
 
-
-bilingual <- c(Bilingual = 34, Monolingual= 66)
 waffle(bilingual, rows=5, size=0.5, 
        colors = c("#AA0000", "black"),
        title="Percent of Bilingual Students", 
@@ -378,7 +379,6 @@ table <- data %>%
   )
 kable(table, caption = "Students Experiencing Homelessness", col.names = c("Total", "Percent"), full_width = F) %>% kable_styling(full_width = F, bootstrap_options = "responsive", position = "left", fixed_thead = T)
 
-homeless <- c(Homeless = 7, `Not Homeless`= 93)
 waffle(homeless, rows=5, size=0.5, 
        colors = c("#AA0000", "black"),
        title="Percent of Students Experiencing Homelessness", 
@@ -387,7 +387,7 @@ waffle(homeless, rows=5, size=0.5,
 
 ---
 
-# Student Absenteeism  
+# SUYI Absenteeism  
 
 ```{r}
 table <- data %>% 
