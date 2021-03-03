@@ -1,5 +1,5 @@
 --- 
-title: 'Seattle University: Youth Initiative Zone'
+title: 'Seattle University Youth Initiative Zone'
 subtitle: "Center for Community Engagement"
 author: 'Prepared by: James Lamar Foster, Ph.C.'
 date: "March 4, 2021"
