@@ -310,7 +310,7 @@ data %>%
 # SUYI Student Demographics 
 
 ```{r}
-# Student's Sex
+# Students' Sex
 table <- data %>%
   group_by(suyi) %>% 
    count("Sex" = sex ) %>%
@@ -318,28 +318,28 @@ table <- data %>%
   adorn_pct_formatting() %>%
   adorn_ns()
 
-kable(table, caption = "Student's Sex", col.names = c("Group","Sex", "Percent (Total)"))%>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T) 
+kable(table, caption = "Students' Sex", col.names = c("Group","Sex", "Percent (Total)"))%>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T) 
 
 data %>% 
 ggplot(aes(x= reorder(sex, primary_language,function(x)length(x)), fill= suyi)) + geom_bar(position = "dodge") + scale_fill_manual(values=c("black","#AA0000", name="Group")) + coord_flip() + labs(x= "Sex", fill = "Group")
 ```
 
 ```{r}
-# Student's Race
+# Students' Race
 table <- data %>%
    count("Racial Identity" = race, sort = T ) %>%
    adorn_percentages(denominator = "col") %>% 
   adorn_pct_formatting() %>%
   adorn_ns()
 
-kable(table, caption = "Student's Racial Identity", col.names = c("Racial Identity", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
+kable(table, caption = "Students' Racial Identity", col.names = c("Racial Identity", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
 
 data %>% 
 ggplot(aes(x= reorder(race, primary_language,function(x)length(x)))) + geom_bar(position = "dodge", fill = "black") + coord_flip() + labs(x= "Racial Identity")
 ```
 
 ```{r}
-# Student's Primary Language
+# Students' Primary Language
 table <- data %>%
    filter(primary_language != "English") %>% 
    count("Primary Language" = primary_language, sort = T) %>%
@@ -348,7 +348,7 @@ table <- data %>%
   adorn_pct_formatting() %>%
   adorn_ns()
 
-kable(table, caption = "Student's Primary Language (Ten most spoken)", col.names = c("Primary Language", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
+kable(table, caption = "Students' Primary Language (Ten most spoken)", col.names = c("Primary Language", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T)
 
 data %>% 
   filter(primary_language != "English") %>% 
