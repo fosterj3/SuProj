@@ -1,5 +1,5 @@
 --- 
-title: 'Seattle University Youth Initiative Zone'
+title: 'State University Youth Initiative Zone'
 subtitle: "Center for Community Engagement"
 author: 'James Lamar Foster, Ph.D. Candidate'
 date: "March 4, 2021"
@@ -226,7 +226,7 @@ bilingual <- c(Bilingual = 34, Monolingual= 66)
 
 # Summary of Findings
 
-The Seattle University Youth Initiative Zone (SUYI) is comprised of 881 students across 16 schools consisting of elementary, middle, and high school students. SUYI is rich in diversity; there are 13 different races/ethnicities, over 10 primary languages, and a host of other characteristics that make this a rich community of students. Unfortunately, many SUYI students struggle with absenteeism and declining MAP Growth Rasch UnIT (RIT) scores. 
+The State University Youth Initiative Zone (SUYI) is comprised of 881 students across 16 schools consisting of elementary, middle, and high school students. SUYI is rich in diversity; there are 13 different races/ethnicities, over 10 primary languages, and a host of other characteristics that make this a rich community of students. Unfortunately, many SUYI students struggle with absenteeism and declining MAP Growth Rasch UnIT (RIT) scores. 
 
 A student is considered "chronically absent" when they miss 10% or more days of instruction in one academic school year (Childs & Lofton, 2021). Chronic absenteeism can lead to students missing important instructional time, ultimately causing students to fall behind in their academics. Furthermore, when students miss school, they also miss important social interaction times that develop their interpersonal skills. According to this analysis, SUYI students miss an average of 12 days of instruction, which is about 7% of the school year in Washington State. High School students make up for the majority of the days missed, with New Futures Alternative, Cascade High School, and Olympic High School having the highest median of absenteeism (20-48 missed days). On the other hand, elementary school students account for the least amount of absences. Horizon, Franklin, and Valley Elementary have the lowest amount of students missing school (4-6 missed days). 
 
@@ -255,7 +255,7 @@ table <- data %>%
   adorn_ns() 
 
 
-kable(table, caption= "Total Number of Students in the Seattle University Youth Initiative Zone", col.names = c("School Name", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T) %>% row_spec(c(17), bold = T)
+kable(table, caption= "Total Number of Students in the State University Youth Initiative Zone", col.names = c("School Name", "Percent (Total)")) %>% kable_styling(full_width = T, bootstrap_options = c("striped", "responsive"), position = "left", fixed_thead = T) %>% row_spec(c(17), bold = T)
 
 
 
